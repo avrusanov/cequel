@@ -65,9 +65,12 @@ module Cequel
     module Forwardable
       include ::Forwardable
 
-      def delegate(*args, &block)
-        return super if args.one?
-        Module.instance_method(:delegate).bind(self).call(*args, &block)
+      def delegate(*args, **kwargs, &block)
+        if args.empty?
+          super(kwargs, &block)
+        else
+          Module.instance_method(:delegate).bind(self).call(*args, **kwargs, &block)
+        end
       end
     end
   end

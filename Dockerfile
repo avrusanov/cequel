@@ -1,4 +1,4 @@
-FROM ruby:alpine
+FROM ruby:3-alpine
 
 # Put the basic system setup in a layer of its own so we don't have
 # rebuild it all the time.
@@ -23,7 +23,7 @@ RUN gem install bundler \
     && bundle install
 
 
-COPY ./* /cequel/
+COPY . /cequel/
 
 
 

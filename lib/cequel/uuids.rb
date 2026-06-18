@@ -1,4 +1,12 @@
 # -*- encoding : utf-8 -*-
+module Cassandra
+  class Uuid
+    def as_json(options = nil)
+      to_s
+    end
+  end
+end
+
 module Cequel
   #
   # This module adds some utility methods for generating and type-checking UUID

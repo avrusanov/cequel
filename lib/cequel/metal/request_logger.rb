@@ -1,4 +1,6 @@
 # -*- encoding : utf-8 -*-
+require 'benchmark'
+
 module Cequel
   module Metal
     #
@@ -30,7 +32,7 @@ module Cequel
 
         response = nil
         begin
-          time = Benchmark.ms { response = yield }
+          time = Benchmark.realtime { response = yield } * 1000
           generate_message = lambda do
             format_for_log(label, "#{time.round.to_i}ms", statement)
           end
