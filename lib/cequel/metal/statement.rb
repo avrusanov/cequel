@@ -20,7 +20,7 @@ module Cequel
                            [cql_or_prepared.to_s, nil]
                          end
 
-        @cql, @prepared, @bind_vars = cql, prepared, bind_vars
+        @cql, @prepared, @bind_vars = String.new(cql), prepared, bind_vars
       end
 
       #
@@ -58,7 +58,7 @@ module Cequel
       #
       def append(cql, *bind_vars)
         unless cql.nil?
-          @cql << cql.freeze
+          @cql << cql
           @bind_vars.concat(bind_vars)
         end
         self
