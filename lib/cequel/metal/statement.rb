@@ -58,7 +58,7 @@ module Cequel
       #
       def append(cql, *bind_vars)
         unless cql.nil?
-          @cql << cql
+          @cql << cql.freeze
           @bind_vars.concat(bind_vars)
         end
         self
