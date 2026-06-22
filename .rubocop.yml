@@ -1,17 +1,22 @@
 inherit_from: .rubocop_todo.yml
 
-Documentation:
+AllCops:
+  NewCops: disable
+  Exclude:
+    - "templates/**/*"
+
+Style/Documentation:
   Exclude:
     - "lib/cequel/version.rb"
     - "lib/cequel/errors.rb"
     - "lib/cequel/record/errors.rb"
 
-HashSyntax:
+Style/HashSyntax:
   Exclude:
     - "lib/cequel/record/tasks.rb"
 
-IfUnlessModifier:
+Style/IfUnlessModifier:
   Enabled: false
 
-DoubleNegation:
+Style/DoubleNegation:
   Enabled: false

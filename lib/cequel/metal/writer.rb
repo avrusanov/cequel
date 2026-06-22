@@ -65,7 +65,7 @@ module Cequel
         if upsert_options.empty?
           ''
         else
-          ' USING ' <<
+          String.new(' USING ') <<
           upsert_options.map do |key, value|
             serialized_value =
               case key
