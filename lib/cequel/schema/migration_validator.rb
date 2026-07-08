@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Schema
     #
@@ -41,6 +42,7 @@ module Cequel
       private
 
       attr_reader :synchronizer
+
       def_delegators :synchronizer, :each_key_pair,
                      :each_clustering_column_pair, :each_data_column_pair,
                      :existing, :updated

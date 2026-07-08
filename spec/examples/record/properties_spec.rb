@@ -1,5 +1,4 @@
-# -*- encoding : utf-8 -*-
-require File.expand_path('../spec_helper', __FILE__)
+require File.expand_path('spec_helper', __dir__)
 
 describe Cequel::Record::Properties do
 
@@ -17,21 +16,21 @@ describe Cequel::Record::Properties do
       end
     end
 
-    it 'should provide accessor for key' do
-      expect(Post.new { |post| post.permalink = 'big-data' }.permalink).
-        to eq('big-data')
+    it 'provides accessor for key' do
+      expect(Post.new { |post| post.permalink = 'big-data' }.permalink)
+        .to eq('big-data')
     end
 
-    it 'should cast key to correct value' do
-      expect(Post.new { |post| post.permalink = 44 }.permalink).
-        to eq('44')
+    it 'casts key to correct value' do
+      expect(Post.new { |post| post.permalink = 44 }.permalink)
+        .to eq('44')
     end
 
-    it 'should have nil key if unset' do
+    it 'has nil key if unset' do
       expect(Post.new.permalink).to be_nil
     end
 
-    it 'should have enums' do
+    it 'has enums' do
       expect(Post.new.status).to be_nil
       expect(Post.status).to eql({ open: 1, closed: 2 })
       expect(Post.new { |post| post.status = :open }.status).to eq(:open)
@@ -39,151 +38,150 @@ describe Cequel::Record::Properties do
       expect(Post.new { |post| post.status = :closed }.status).to eq(:closed)
       expect(Post.new { |post| post.status = :closed }).to be_closed
       expect(Post.new { |post| post.status = :closed }.attributes['status']).to eq(2)
-      expect(Post.new { |post| post.status = :unknown }.status).to eq(nil)
+      expect(Post.new { |post| post.status = :unknown }.status).to be_nil
     end
 
-    it 'should provide accessor for data column' do
+    it 'provides accessor for data column' do
       expect(Post.new { |post| post.title = 'Big Data' }.title).to eq('Big Data')
     end
 
-    it 'should cast data column to correct value' do
-      expect(Post.new { |post| post.title = 'Big Data'.force_encoding('US-ASCII') }.
-        title.encoding.name).to eq('UTF-8')
+    it 'casts data column to correct value' do
+      expect(Post.new { |post| post.title = 'Big Data'.force_encoding('US-ASCII') }
+        .title.encoding.name).to eq('UTF-8')
     end
 
-    it 'should have nil data column value if unset' do
+    it 'has nil data column value if unset' do
       expect(Post.new.title).to be_nil
     end
 
-    it 'should allow setting attributes via #attributes=' do
-      expect(Post.new.tap { |post| post.attributes = {:title => 'Big Data' }}.
-        title).to eq('Big Data')
+    it 'allows setting attributes via #attributes=' do
+      expect(Post.new.tap { |post| post.attributes = {title: 'Big Data' } }
+        .title).to eq('Big Data')
     end
 
-    it 'should use writers when setting attributes' do
-      expect(Post.new.tap { |post| post.attributes = {:downcased_title => 'big data' }}.
-        title).to eq('Big Data')
+    it 'uses writers when setting attributes' do
+      expect(Post.new.tap { |post| post.attributes = {downcased_title: 'big data' } }
+        .title).to eq('Big Data')
     end
 
-    it 'should mark the attribute as dirty when setting attributes' do
+    it 'marks the attribute as dirty when setting attributes' do
       expect(Post.new { |post| post.title = 'Big Data' }.changed).to eq(['title'])
-      expect(Post.new { |post| post.title = 'Big Data' }.changes).to eq({'title' => [nil,'Big Data']})
+      expect(Post.new { |post| post.title = 'Big Data' }.changes).to eq({'title' => [nil, 'Big Data']})
     end
 
-    it 'should get attributes with indifferent access' do
-      post = Post.new.tap { |post| post.attributes = {:downcased_title => 'big data' }}
+    it 'gets attributes with indifferent access' do
+      post = Post.new.tap { |post| post.attributes = {downcased_title: 'big data' } }
       expect(post.attributes[:title]).to eq 'Big Data'
       expect(post.attributes["title"]).to eq 'Big Data'
     end
 
-    it 'should take attribute arguments to ::new' do
-      expect(Post.new(:downcased_title => 'big data').title).to eq('Big Data')
+    it 'takes attribute arguments to ::new' do
+      expect(Post.new(downcased_title: 'big data').title).to eq('Big Data')
     end
 
-    it 'should provide accessor for list column' do
-      expect(Post.new { |post| post.tags = %w(one two three) }.tags).to eq(
-        %w(one two three))
+    it 'provides accessor for list column' do
+      expect(Post.new { |post| post.tags = %w[one two three] }.tags).to eq(
+        %w[one two three]
+      )
     end
 
-    it 'should cast collection in list column to list' do
+    it 'casts collection in list column to list' do
       expect(Post.new { |post| post.tags = Set['1', '2', '3'] }.tags)
-        .to eq(%w(1 2 3))
+        .to eq(%w[1 2 3])
     end
 
-    it 'should cast elements in list' do
-      expect(Post.new { |post| post.tags = [1, 2, 3] }.tags).to eq(%w(1 2 3))
+    it 'casts elements in list' do
+      expect(Post.new { |post| post.tags = [1, 2, 3] }.tags).to eq(%w[1 2 3])
     end
 
-    it 'should have empty list column value if unset' do
+    it 'has empty list column value if unset' do
       expect(Post.new.tags).to eq([])
     end
 
-    it 'should have empty list column value if unset in database' do
+    it 'has empty list column value if unset in database' do
       uniq_key = SecureRandom.uuid
       Post.create! permalink: uniq_key
       expect(Post[uniq_key].tags).to eq([])
     end
 
-
-    it 'should provide accessor for set column' do
+    it 'provides accessor for set column' do
       expect(Post.new { |post| post.categories = Set['Big Data', 'Cassandra'] }
         .categories).to eq(Set['Big Data', 'Cassandra'])
     end
 
-    it 'should cast values in set column to correct type' do
+    it 'casts values in set column to correct type' do
       expect(Post.new { |post| post.categories = Set[1, 2, 3] }.categories)
         .to eq(Set['1', '2', '3'])
     end
 
-    it 'should cast collection to set in set column' do
-      expect(Post.new { |post| post.categories = ['1', '2', '3'] }.categories)
+    it 'casts collection to set in set column' do
+      expect(Post.new { |post| post.categories = %w[1 2 3] }.categories)
         .to eq(Set['1', '2', '3'])
     end
 
-    it 'should have empty set column value if not explicitly set' do
+    it 'has empty set column value if not explicitly set' do
       expect(Post.new.categories).to eq(Set[])
     end
 
-    it 'should handle saved records with unspecified set properties' do
+    it 'handles saved records with unspecified set properties' do
       uuid = SecureRandom.uuid
       Post.create!(permalink: uuid)
       expect(Post[uuid].categories).to eq(::Set[])
     end
 
-    it 'should provide accessor for map column' do
-      expect(Post.new { |post| post.shares = {'facebook' => 1, 'twitter' => 2}}
+    it 'provides accessor for map column' do
+      expect(Post.new { |post| post.shares = {'facebook' => 1, 'twitter' => 2} }
         .shares).to eq({'facebook' => 1, 'twitter' => 2})
     end
 
-    it 'should cast values for map column' do
+    it 'casts values for map column' do
       expect(Post.new { |post| post.shares = {facebook: '1', twitter: '2'} }
         .shares).to eq({'facebook' => 1, 'twitter' => 2})
     end
 
-    it 'should cast collection passed to map column to map' do
+    it 'casts collection passed to map column to map' do
       expect(Post.new { |post| post.shares = [['facebook', 1], ['twitter', 2]] }
         .shares).to eq({'facebook' => 1, 'twitter' => 2})
     end
 
-    it 'should set map column to empty hash by default' do
+    it 'sets map column to empty hash by default' do
       expect(Post.new.shares).to eq({})
     end
 
-    it 'should handle saved records with unspecified map properties' do
+    it 'handles saved records with unspecified map properties' do
       uuid = SecureRandom.uuid
       Post.create!(permalink: uuid)
       expect(Post[uuid].shares).to eq({})
     end
 
-
   end
 
   describe 'configured property defaults' do
     model :Post do
-      key :permalink, :text, :default => 'new_permalink'
-      column :title, :text, :default => 'New Post'
-      list :tags, :text, :default => ['new']
-      set :categories, :text, :default => Set['Big Data']
-      map :shares, :text, :int, :default => {'facebook' => 0}
+      key :permalink, :text, default: 'new_permalink'
+      column :title, :text, default: 'New Post'
+      list :tags, :text, default: ['new']
+      set :categories, :text, default: Set['Big Data']
+      map :shares, :text, :int, default: {'facebook' => 0}
     end
 
-    it 'should respect default for keys' do
+    it 'respects default for keys' do
       expect(Post.new.permalink).to eq('new_permalink')
     end
 
-    it 'should respect default for data column' do
+    it 'respects default for data column' do
       expect(Post.new.title).to eq('New Post')
     end
 
-    it 'should respect default for list column' do
+    it 'respects default for list column' do
       expect(Post.new.tags).to eq(['new'])
     end
 
-    it 'should respect default for set column' do
+    it 'respects default for set column' do
       expect(Post.new.categories).to eq(Set['Big Data'])
     end
 
-    it 'should respect default for map column' do
+    it 'respects default for map column' do
       expect(Post.new.shares).to eq({'facebook' => 0})
     end
   end
@@ -195,11 +193,11 @@ describe Cequel::Record::Properties do
       column :title, :text, default: -> { "Post #{Date.today}" }
     end
 
-    it 'should auto-generate UUID key' do
-      expect(Cequel.uuid?(Post.new.id)).to eq(true)
+    it 'auto-generates UUID key' do
+      expect(Cequel.uuid?(Post.new.id)).to be(true)
     end
 
-    it 'should raise ArgumentError if auto specified for non-UUID' do
+    it 'raises ArgumentError if auto specified for non-UUID' do
       expect do
         Class.new do
           include Cequel::Record
@@ -209,11 +207,11 @@ describe Cequel::Record::Properties do
       end.to raise_error(ArgumentError)
     end
 
-    it 'should run default proc on keys' do
+    it 'runs default proc on keys' do
       expect(Post.new.subid).to eq("subid #{1+1}")
     end
 
-    it 'should run default proc' do
+    it 'runs default proc' do
       expect(Post.new.title).to eq("Post #{Date.today}")
     end
   end

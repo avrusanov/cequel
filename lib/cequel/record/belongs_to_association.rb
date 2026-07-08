@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -36,7 +37,8 @@ module Cequel
         options.assert_valid_keys(:class_name, :foreign_key)
 
         @foreign_keys = Array(options.fetch(:foreign_key, [])).map { |x| x.to_sym }
-        @owner_class, @name = owner_class, name.to_sym
+        @owner_class = owner_class
+        @name = name.to_sym
         @association_class_name =
           options.fetch(:class_name, @name.to_s.classify)
       end

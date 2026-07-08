@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cassandra
   class Uuid
     def as_json(options = nil)

@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -80,7 +81,7 @@ module Cequel
         arg_names = column_names.join(', ')
         method_suffix = finder_method_suffix(column_names)
         column_filter_expr = column_names
-          .map { |name| "#{name}: #{name}" }.join(', ')
+                             .map { |name| "#{name}: #{name}" }.join(', ')
 
         singleton_class.module_eval(<<-RUBY, __FILE__, __LINE__+1)
           def #{method_prefix}_#{method_suffix}(#{arg_names})

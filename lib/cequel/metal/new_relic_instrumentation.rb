@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 begin
   require 'new_relic/agent/datastores'
 rescue LoadError
@@ -28,7 +29,7 @@ module Cequel
           statement_txt = 'BEGIN BATCH'
         end
 
-        callback = Proc.new do |result, scoped_metric, elapsed|
+        callback = proc do |result, scoped_metric, elapsed|
           NewRelic::Agent::Datastores.notice_statement(statement_txt, elapsed)
         end
 
@@ -51,10 +52,9 @@ module Cequel
         end
       end
 
-
       included do
-        alias :execute_with_options_without_newrelic :execute_with_options
-        alias :execute_with_options :execute_with_options_with_newrelic
+        alias_method :execute_with_options_without_newrelic, :execute_with_options
+        alias_method :execute_with_options, :execute_with_options_with_newrelic
       end
     end
   end

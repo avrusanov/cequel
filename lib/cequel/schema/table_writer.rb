@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Schema
     #
@@ -74,7 +75,7 @@ module Cequel
 
       def keys_cql
         partition_cql = table.partition_key_columns
-          .map { |key| key.name }.join(', ')
+                             .map { |key| key.name }.join(', ')
         if table.clustering_columns.any?
           nonpartition_cql =
             table.clustering_columns.map { |key| key.name }.join(', ')
@@ -86,7 +87,7 @@ module Cequel
 
       def properties_cql
         properties_fragments = table.properties
-          .map { |_, property| property.to_cql }
+                                    .map { |_, property| property.to_cql }
         properties_fragments << 'COMPACT STORAGE' if table.compact_storage?
         if table.clustering_columns.any?
           clustering_fragment =

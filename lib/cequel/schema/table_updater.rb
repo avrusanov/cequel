@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Schema
     #
@@ -25,7 +26,8 @@ module Cequel
       # @private
       #
       def initialize(keyspace, table_name)
-        @keyspace, @table_name = keyspace, table_name
+        @keyspace = keyspace
+        @table_name = table_name
         @statements = []
       end
       private_class_method :new
@@ -94,7 +96,7 @@ module Cequel
       # @return [void]
       #
       def rename_column(old_name, new_name)
-        add_stmt %Q|ALTER TABLE "#{table_name}" RENAME "#{old_name}" TO "#{new_name}"|
+        add_stmt %Q(ALTER TABLE "#{table_name}" RENAME "#{old_name}" TO "#{new_name}")
       end
 
       # Remove a column
@@ -103,7 +105,7 @@ module Cequel
       # @return [void]
       #
       def drop_column(name)
-        add_stmt %Q|ALTER TABLE "#{table_name}" DROP "#{name}"|
+        add_stmt %Q(ALTER TABLE "#{table_name}" DROP "#{name}")
       end
 
       #
@@ -116,8 +118,8 @@ module Cequel
       #
       def change_properties(options)
         properties = options
-          .map { |name, value| TableProperty.build(name, value).to_cql }
-        add_stmt %Q|ALTER TABLE "#{table_name}" WITH #{properties.join(' AND ')}|
+                     .map { |name, value| TableProperty.build(name, value).to_cql }
+        add_stmt %Q(ALTER TABLE "#{table_name}" WITH #{properties.join(' AND ')})
       end
 
       #
@@ -139,12 +141,12 @@ module Cequel
       # @return [void]
       #
       def drop_index(index_name)
-        add_stmt %Q|DROP INDEX IF EXISTS "#{index_name}"|
+        add_stmt %Q(DROP INDEX IF EXISTS "#{index_name}")
       end
 
       # @!visibility protected
       def add_data_column(column)
-        add_stmt(%Q|ALTER TABLE #{table_name} ADD #{column.to_cql}|)
+        add_stmt(%Q(ALTER TABLE #{table_name} ADD #{column.to_cql}))
       end
 
       protected

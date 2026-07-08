@@ -1,4 +1,3 @@
-# -*- encoding : utf-8 -*-
 require_relative 'spec_helper'
 
 describe 'serialization' do
@@ -15,22 +14,22 @@ describe 'serialization' do
     {
       blog_subdomain: 'big-data',
       id: id,
-      title: 'Cequel',
+      title: 'Cequel'
     }
   end
 
-  let(:post){ Post.new(attributes) }
+  let(:post) { Post.new(attributes) }
 
-  before :each do
+  before do
     Post.include_root_in_json = false
   end
 
-  it 'should provide JSON serialization' do
+  it 'provides JSON serialization' do
     json = post.as_json.symbolize_keys
     expect(json).to eq(attributes.merge(id: attributes[:id].to_s, body: nil))
   end
 
-  it 'should be able to serialize restricting to some attributes' do
+  it 'is able to serialize restricting to some attributes' do
     json = post.as_json(only: [:id]).symbolize_keys
     expect(json).to eq(id: attributes[:id].to_s)
   end

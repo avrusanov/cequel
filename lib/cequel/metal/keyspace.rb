@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 require 'set'
 
 module Cequel
@@ -288,7 +289,7 @@ module Cequel
 
       # return true if Cassandra server version is known to include bug CASSANDRA-8733
       def bug8733_version?
-        version_file = File.expand_path('../../../../.cassandra-versions', __FILE__)
+        version_file = File.expand_path('../../../.cassandra-versions', __dir__)
         @all_versions ||= File.read(version_file).split("\n").map(&:strip)
 
         # bug exists in versions 0.3.0-2.0.12 and 2.1.0-2.1.2
@@ -338,7 +339,8 @@ module Cequel
       end
 
       def extract_hosts_and_port(configuration)
-        hosts, ports = [], Set[]
+        hosts = []
+        ports = Set[]
         ports << Integer(configuration[:port]) if configuration.key?(:port)
         host_or_hosts =
           configuration.fetch(:host, configuration.fetch(:hosts, '127.0.0.1'))

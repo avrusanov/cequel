@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -94,7 +95,7 @@ module Cequel
       def key_values
         key_attributes.values
       end
-      alias_method :to_key, :key_values
+      alias to_key key_values
 
       #
       # Check if an unloaded record exists in the database
@@ -110,7 +111,7 @@ module Cequel
       rescue RecordNotFound
         false
       end
-      alias_method :exist?, :exists?
+      alias exist? exists?
 
       #
       # Load an unloaded record's row from the database and hydrate the
@@ -262,11 +263,13 @@ module Cequel
 
       def updater
         raise ArgumentError, "Can't get updater for new record" if new_record?
+
         @updater ||= Metal::Updater.new(metal_scope)
       end
 
       def deleter
         raise ArgumentError, "Can't get deleter for new record" if new_record?
+
         @deleter ||= Metal::Deleter.new(metal_scope)
       end
 
@@ -316,6 +319,7 @@ module Cequel
       def write_attribute(name, value)
         column = self.class.reflect_on_column(name)
         fail UnknownAttributeError, "unknown attribute: #{name}" unless column
+
         value = column.cast(value) unless value.nil?
 
         if !new_record? && key_attributes.keys.include?(name)
@@ -341,7 +345,7 @@ module Cequel
       def record_collection
         @record_collection ||=
           LazyRecordCollection.new(self.class.at(*key_values))
-          .tap { |set| set.__setobj__([self]) }
+                              .tap { |set| set.__setobj__([self]) }
       end
 
       def hydrated!
@@ -367,11 +371,11 @@ module Cequel
       end
 
       def attributes_for_update
-        @cequel_attributes_for_update ||= {}
+        @attributes_for_update ||= {}
       end
 
       def attributes_for_deletion
-        @cequel_attributes_for_deletion ||= []
+        @attributes_for_deletion ||= []
       end
 
       def assert_keys_present!

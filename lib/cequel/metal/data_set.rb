@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 require 'forwardable'
 
 module Cequel
@@ -43,14 +44,12 @@ module Cequel
       # @return [Hash<Symbol,Symbol>] map of column names to sort directions
       attr_reader :sort_order
       # @return [Integer] maximum number of rows to return, `nil` if no limit
-      attr_reader :row_limit
+      attr_accessor :row_limit
       # @return [Symbol] what consistency level queries from this data set will
       #   use
       # @since 1.1.0
-      attr_reader :query_consistency
-      attr_reader :query_page_size
-      attr_reader :query_paging_state
-      attr_reader :allow_filtering
+      attr_accessor :query_consistency
+      attr_accessor :query_page_size, :query_paging_state, :allow_filtering
 
       def_delegator :keyspace, :write_with_options
 
@@ -62,9 +61,13 @@ module Cequel
       # @api private
       #
       def initialize(table_name, keyspace)
-        @table_name, @keyspace = table_name, keyspace
-        @select_columns, @ttl_columns, @writetime_columns, @row_specifications,
-          @sort_order = [], [], [], [], {}
+        @table_name = table_name
+        @keyspace = keyspace
+        @select_columns = []
+        @ttl_columns = []
+        @writetime_columns = []
+        @row_specifications = []
+        @sort_order = {}
       end
 
       #
@@ -158,7 +161,7 @@ module Cequel
       def increment(deltas, options = {})
         incrementer { increment(deltas) }.execute(options)
       end
-      alias_method :incr, :increment
+      alias incr increment
 
       #
       # Decrement one or more counter columns
@@ -175,7 +178,7 @@ module Cequel
       def decrement(deltas, options = {})
         incrementer { decrement(deltas) }.execute(options)
       end
-      alias_method :decr, :decrement
+      alias decr decrement
 
       #
       # Prepend element(s) to a list in the row(s) matched by this data set.
@@ -476,7 +479,7 @@ module Cequel
           data_set.writetime_columns.concat(columns.flatten)
         end
       end
-      alias_method :select_timestamp, :select_writetime
+      alias select_timestamp select_writetime
 
       #
       # Select specified columns from this data set, overriding chained scope.
@@ -511,7 +514,7 @@ module Cequel
       def where(row_specification, *bind_vars)
         clone.tap do |data_set|
           data_set.row_specifications
-            .concat(build_row_specifications(row_specification, bind_vars))
+                  .concat(build_row_specifications(row_specification, bind_vars))
         end
       end
 
@@ -524,7 +527,7 @@ module Cequel
       def where!(row_specification, *bind_vars)
         clone.tap do |data_set|
           data_set.row_specifications
-            .replace(build_row_specifications(row_specification, bind_vars))
+                  .replace(build_row_specifications(row_specification, bind_vars))
         end
       end
 
@@ -553,9 +556,6 @@ module Cequel
         end
       end
 
-      # rubocop:disable LineLength
-
-      #
       # Change the consistency for queries performed by this data set
       #
       # @param consistency [Symbol] a consistency level
@@ -611,9 +611,6 @@ module Cequel
         results.last_page?
       end
 
-      # rubocop:enable LineLength
-
-      #
       # Enumerate over rows in this data set. Along with #each, all other
       # Enumerable methods are implemented.
       #
@@ -628,6 +625,7 @@ module Cequel
       #
       def each
         return enum_for(:each) unless block_given?
+
         results.each { |row| yield Row.from_result_row(row) }
       end
 
@@ -642,22 +640,22 @@ module Cequel
       # @raise [DangerousQueryError] to prevent loading the entire record set
       #   to be counted
       def count
-        raise Cequel::Record::DangerousQueryError.new
+        raise Cequel::Record::DangerousQueryError
       end
-      alias_method :length, :count
-      alias_method :size, :count
+      alias length count
+      alias size count
 
       #
       # @return [Statement] CQL `SELECT` statement encoding this data set's scope.
       #
       def cql
         statement = Statement.new
-          .append(select_cql)
-          .append(" FROM #{table_name}")
-          .append(*row_specifications_cql)
-          .append(sort_order_cql)
-          .append(limit_cql)
-          .append(allow_filtering_cql)
+                             .append(select_cql)
+                             .append(" FROM #{table_name}")
+                             .append(*row_specifications_cql)
+                             .append(sort_order_cql)
+                             .append(limit_cql)
+                             .append(allow_filtering_cql)
       end
 
       #
@@ -677,14 +675,16 @@ module Cequel
       # @private
       def row_specifications_cql
         if row_specifications.any?
-          cql_fragments, bind_vars = [], []
+          cql_fragments = []
+          bind_vars = []
           row_specifications.each do |spec|
             cql_with_vars = spec.cql
             cql_fragments << cql_with_vars.shift
             bind_vars.concat(cql_with_vars)
           end
           [" WHERE #{cql_fragments.join(' AND ')}", *bind_vars]
-        else ['']
+        else
+          ['']
         end
       end
 
@@ -692,11 +692,10 @@ module Cequel
       def allow_filtering_cql
         if allow_filtering
           ' ALLOW FILTERING'
-        else ''
+        else
+          ''
         end
       end
-
-      attr_writer :row_limit, :query_consistency, :query_page_size, :query_paging_state, :allow_filtering
 
       def results
         @results ||= execute_cql(cql)
@@ -706,8 +705,7 @@ module Cequel
         keyspace.execute_with_options(cql_stmt,
                                       consistency: query_consistency,
                                       page_size: query_page_size,
-                                      paging_state: query_paging_state
-                                     )
+                                      paging_state: query_paging_state)
       end
 
       def inserter(&block)
@@ -756,8 +754,8 @@ module Cequel
       def sort_order_cql
         if sort_order.any?
           order = sort_order
-            .map { |column, direction| "#{column} #{direction.to_s.upcase}" }
-            .join(', ')
+                  .map { |column, direction| "#{column} #{direction.to_s.upcase}" }
+                  .join(', ')
           " ORDER BY #{order}"
         end
       end

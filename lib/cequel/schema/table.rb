@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 require 'stringio'
 
 module Cequel
@@ -9,7 +10,6 @@ module Cequel
     # @see Keyspace#read_table
     #
     class Table
-
       # @return [Symbol] the name of the table
       attr_reader :name
 
@@ -42,8 +42,11 @@ module Cequel
       def initialize(name, is_view=false)
         @name = name.to_sym
         @is_view = is_view
-        @partition_key_columns, @clustering_columns, @data_columns = [], [], []
-        @columns, @columns_by_name = [], {}
+        @partition_key_columns = []
+        @clustering_columns = []
+        @data_columns = []
+        @columns = []
+        @columns_by_name = {}
         @properties = ActiveSupport::HashWithIndifferentAccess.new
       end
 
@@ -92,7 +95,7 @@ module Cequel
       # Returns true iff this table has the specified column name.
       #
       def has_column?(name)
-        columns_by_name.has_key?(name.to_sym)
+        columns_by_name.key?(name.to_sym)
       end
 
       #
@@ -209,9 +212,14 @@ module Cequel
       end
 
       def null_table_property
-        @@null_table_property ||= Class.new do
-          def value; nil; end
-          def name; nil; end
+        @@null_table_property ||= Class.new do # rubocop:disable Style/ClassVars
+          def value 
+            nil 
+          end
+
+          def name 
+            nil 
+          end
         end.new
       end
     end

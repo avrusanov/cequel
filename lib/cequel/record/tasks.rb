@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 task :environment do
 end
 
@@ -40,8 +41,7 @@ namespace :cequel do
   end
 
   desc "Create keyspace and tables for all defined models"
-  task :init => %w(keyspace:create migrate)
-
+  task :init => %w[keyspace:create migrate]
 
   desc 'Drop keyspace if exists, then create and migrate'
   task :reset => :environment do
@@ -56,7 +56,6 @@ namespace :cequel do
     Cequel::Record.connection.schema.create!
     puts "Created keyspace #{Cequel::Record.connection.name}"
   end
-
 
   def drop!
     Cequel::Record.connection.schema.drop!
@@ -76,17 +75,16 @@ namespace :cequel do
       new_classes = Cequel::Record.descendants.reject { |d| before_descendants.include?(d) }
 
       if new_classes.empty?
-        # rubocop:disable HandleExceptions
         begin
           clazz = model_file_name.sub(/\.rb$/, "").classify.constantize
           new_classes = [clazz] if clazz.is_a?(Class) && clazz.ancestors.include?(Cequel::Record)
         rescue LoadError, NameError, RuntimeError
         end
-        # rubocop:enable HandleExceptions
       end
 
       new_classes.each do |clazz|
         next if migration_table_names.include?(clazz.table_name.to_sym)
+
         clazz.synchronize_schema
         migration_table_names << clazz.table_name.to_sym
         puts "Synchronized schema for #{clazz.name}"

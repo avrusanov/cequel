@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Metal
     #
@@ -148,13 +149,14 @@ module Cequel
       def write_to_statement(statement, options)
         all_statements, all_bind_vars = statements_with_column_updates
         statement.append("UPDATE #{table_name}")
-          .append(generate_upsert_options(options))
-          .append(" SET ")
-          .append(all_statements.join(', '), *all_bind_vars)
+                 .append(generate_upsert_options(options))
+                 .append(" SET ")
+                 .append(all_statements.join(', '), *all_bind_vars)
       end
 
       def statements_with_column_updates
-        all_statements, all_bind_vars = statements.dup, bind_vars.dup
+        all_statements = statements.dup
+        all_bind_vars = bind_vars.dup
         column_updates.each_pair do |column, value|
           prepare_upsert_value(value) do |binding, *values|
             all_statements << "#{column} = #{binding}"

@@ -1,5 +1,4 @@
-# -*- encoding : utf-8 -*-
-require File.expand_path('../spec_helper', __FILE__)
+require File.expand_path('spec_helper', __dir__)
 
 describe Cequel::Record::Callbacks do
   model :Post do
@@ -8,7 +7,7 @@ describe Cequel::Record::Callbacks do
 
     def self.track_callbacks(*events)
       events.each do |event|
-        %w(before after).each do |position|
+        %w[before after].each do |position|
           callback_name = :"#{position}_#{event}"
           __send__(callback_name) do |post|
             post.executed_callbacks << callback_name
@@ -27,7 +26,7 @@ describe Cequel::Record::Callbacks do
 
   model :Comment do
     belongs_to :post
-    key :id, :timeuuid, :auto => true
+    key :id, :timeuuid, auto: true
     column :body, :text
 
     before_save :create_post
@@ -65,8 +64,9 @@ describe Cequel::Record::Callbacks do
   end
 
   context 'on create' do
-    before { new_post.save! }
     subject { new_post.executed_callbacks }
+
+    before { new_post.save! }
 
     it { is_expected.to include(:before_save) }
     it { is_expected.to include(:after_save) }
@@ -79,8 +79,9 @@ describe Cequel::Record::Callbacks do
   end
 
   context 'on update' do
-    before { existing_post.save! }
     subject { existing_post.executed_callbacks }
+
+    before { existing_post.save! }
 
     it { is_expected.to include(:before_save) }
     it { is_expected.to include(:after_save) }
@@ -93,9 +94,9 @@ describe Cequel::Record::Callbacks do
   end
 
   context 'on destroy' do
-    before { existing_post.destroy }
-
     subject { existing_post.executed_callbacks }
+
+    before { existing_post.destroy }
 
     it { is_expected.not_to include(:before_save) }
     it { is_expected.not_to include(:after_save) }
@@ -108,11 +109,13 @@ describe Cequel::Record::Callbacks do
   end
 
   describe 'atomic writes' do
-    it 'should run callbacks in a logged batch' do
-      comment = Comment.new(:body => 'Great web site!')
+    it 'runs callbacks in a logged batch' do
+      comment = Comment.new(body: 'Great web site!')
       comment.instance_after_save =
-        -> { expect { Post.find('autopost') }.
-          to raise_error(Cequel::Record::RecordNotFound) }
+        lambda { 
+          expect { Post.find('autopost') }
+            .to raise_error(Cequel::Record::RecordNotFound)
+        }
       comment.save!
       expect(Post.find('autopost').title).to eq('Auto Post')
     end

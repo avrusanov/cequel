@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Schema
     #
@@ -231,10 +232,9 @@ module Cequel
                   TableWriter.new(new_table_desc) # close enough to a patch
                 end
 
-        patch.statements.each{|stmt| keyspace.execute(stmt) }
+        patch.statements.each { |stmt| keyspace.execute(stmt) }
       end
-      alias_method :synchronize_table, :sync_table
-
+      alias synchronize_table sync_table
 
       # Returns true iff the specified table name exists in the keyspace.
       #

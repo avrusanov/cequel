@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 flags, args = ARGV.partition { |arg| arg[0] == '-' }
 pattern, line_number = *args

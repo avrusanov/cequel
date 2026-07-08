@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 require 'singleton'
 
 module Cequel
@@ -20,8 +21,8 @@ module Cequel
     # Raised if an unknown type is looked up
     UnknownType = Class.new(ArgumentError)
 
-    BY_CQL_NAME = {}
-    BY_INTERNAL_NAME = {}
+    BY_CQL_NAME = {} # rubocop:disable Style/MutableConstant
+    BY_INTERNAL_NAME = {} # rubocop:disable Style/MutableConstant
 
     #
     # Register a type for lookup
@@ -83,6 +84,7 @@ module Cequel
       if value.is_a?(Array)
         return value.map { |element| quote(element) }.join(',')
       end
+
       case value
       when Time, ActiveSupport::TimeWithZone
         (value.to_r * 1000).round.to_s

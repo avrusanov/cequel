@@ -1,5 +1,4 @@
-# -*- encoding : utf-8 -*-
-require File.expand_path('../spec_helper', __FILE__)
+require File.expand_path('spec_helper', __dir__)
 
 describe Cequel::Record::LazyRecordCollection do
   context 'handle timestamp attribute correctly (do not split it to array)' do

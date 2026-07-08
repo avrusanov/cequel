@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Metal
     #
@@ -24,7 +25,8 @@ module Cequel
                 if $1 == 'ttl' then row.set_ttl($2, value)
                 else row.set_writetime($2, value)
                 end
-              else row[name] = value
+              else
+                row[name] = value
               end
             end
           end
@@ -59,7 +61,7 @@ module Cequel
       def writetime(column)
         @writetimes[column]
       end
-      alias_method :timestamp, :writetime
+      alias timestamp writetime
 
       # @private
       def set_ttl(column, value)

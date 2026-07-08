@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Metal
     #
@@ -28,20 +29,21 @@ module Cequel
       # @param value [Object,Array] value or values to match
       #
       def initialize(column, value)
-        @column, @value = column, value
+        @column = column
+        @value = value
       end
 
       #
       # @return [String] row specification as CQL fragment
       #
       def cql
-        value = if Enumerable === @value && @value.count == 1
+        value = if @value.is_a?(Enumerable) && @value.count == 1
                   @value.first
                 else
                   @value
                 end
 
-        if Array === value
+        if value.is_a?(Array)
           ["#{@column} IN ?", value]
         else
           ["#{@column} = ?", value]

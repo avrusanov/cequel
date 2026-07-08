@@ -1,5 +1,4 @@
-# -*- encoding : utf-8 -*-
-require File.expand_path('../spec_helper', __FILE__)
+require File.expand_path('spec_helper', __dir__)
 
 describe Cequel::Record::Persistence do
   model :Blog do
@@ -18,7 +17,7 @@ describe Cequel::Record::Persistence do
   end
 
   context 'simple keys' do
-    subject { cequel[Blog.table_name].where(:subdomain => 'cequel').first }
+    subject { cequel[Blog.table_name].where(subdomain: 'cequel').first }
 
     let!(:blog) do
       Blog.new do |blog|
@@ -35,21 +34,21 @@ describe Cequel::Record::Persistence do
 
     describe '#save' do
       context 'on create' do
-        it 'should save row to database' do
+        it 'saves row to database' do
           expect(subject[:name]).to eq('Cequel')
         end
 
-        it 'should mark row persisted' do
+        it 'marks row persisted' do
           expect(blog).to be_persisted
         end
 
-        it 'should fail fast if keys are missing' do
-          expect {
+        it 'fails fast if keys are missing' do
+          expect do
             Blog.new.save
-          }.to raise_error(Cequel::Record::MissingKeyError)
+          end.to raise_error(Cequel::Record::MissingKeyError)
         end
 
-        it 'should save with specified consistency' do
+        it 'saves with specified consistency' do
           expect_query_with_consistency(anything, :one) do
             Blog.new do |blog|
               blog.subdomain = 'cequel'
@@ -58,27 +57,28 @@ describe Cequel::Record::Persistence do
           end
         end
 
-        it 'should save with specified TTL' do
+        it 'saves with specified TTL' do
           Blog.new(subdomain: 'cequel', name: 'Cequel').save(ttl: 10)
           expect(cequel[Blog.table_name].select_ttl(:name).first.ttl(:name))
             .to be_within(0.1).of(9.9)
         end
 
-        it 'should save with specified timestamp' do
+        it 'saves with specified timestamp' do
           timestamp = 1.minute.from_now
           Blog.new(subdomain: 'cequel-create-ts', name: 'Cequel')
-            .save(timestamp: timestamp)
+              .save(timestamp: timestamp)
           expect(cequel[Blog.table_name].select_timestamp(:name).first.timestamp(:name))
             .to eq((timestamp.to_f * 1_000_000).to_i)
           Blog.connection.schema.truncate_table(Blog.table_name)
         end
 
-        it 'should notify of create' do
-          expect { Blog.new do |blog|
+        it 'notifies of create' do
+          expect do 
+            Blog.new do |blog|
               blog.subdomain = 'cequel'
               blog.name = 'Cequel'
             end.save
-          }.to notify_name("create.cequel")
+          end.to notify_name("create.cequel")
         end
       end
 
@@ -92,47 +92,47 @@ describe Cequel::Record::Persistence do
           blog.save
         end
 
-        it 'should change existing column value' do
+        it 'changes existing column value' do
           expect(subject[:name]).to eq('Cequel 1.0')
         end
 
-        it 'should add new column value' do
+        it 'adds new column value' do
           expect(subject[:owner_id]).to eq(owner_id)
         end
 
-        it 'should remove old column values' do
+        it 'removes old column values' do
           expect(subject[:description]).to be_nil
         end
 
-        it 'should not allow changing key values' do
-          expect {
+        it 'does not allow changing key values' do
+          expect do
             blog.subdomain = 'soup'
             blog.save
-          }.to raise_error(ArgumentError)
+          end.to raise_error(ArgumentError)
         end
 
-        it 'should allow setting a key value to the same thing it already is' do
-          expect {
+        it 'allows setting a key value to the same thing it already is' do
+          expect do
             blog.subdomain = 'cequel'
             blog.save
-          }.to_not raise_error
+          end.not_to raise_error
         end
 
-        it 'should save with specified consistency' do
+        it 'saves with specified consistency' do
           expect_query_with_consistency(anything, :one) do
             blog.name = 'Cequel'
             blog.save(consistency: :one)
           end
         end
 
-        it 'should save with specified TTL' do
+        it 'saves with specified TTL' do
           blog.name = 'Cequel 1.4'
           blog.save(ttl: 10)
           expect(cequel[Blog.table_name].select_ttl(:name).first.ttl(:name))
-            .to be_between(9,10).inclusive
+            .to be_between(9, 10).inclusive
         end
 
-        it 'should save with specified timestamp' do
+        it 'saves with specified timestamp' do
           timestamp = 1.minute.from_now
           blog.name = 'Cequel 1.4'
           blog.save(timestamp: timestamp)
@@ -141,18 +141,18 @@ describe Cequel::Record::Persistence do
           Blog.connection.schema.truncate_table(Blog.table_name)
         end
 
-        it 'should not query database if no attributes have been changed' do
+        it 'does not query database if no attributes have been changed' do
           disallow_queries!
           blog.save
         end
 
-        it 'should not mark itself as clean if save failed at Cassandra level' do
+        it 'does not mark itself as clean if save failed at Cassandra level' do
           blog.name = 'Pizza'
           with_client_error(Cassandra::Errors::InvalidError.new(nil, nil, nil, nil, nil, nil, nil, nil, nil)) do
-            begin
-              blog.save
-            rescue Cassandra::Errors::InvalidError
-            end
+            
+            blog.save
+          rescue Cassandra::Errors::InvalidError
+            
           end
           blog.save
           expect(subject[:name]).to eq('Pizza')
@@ -171,61 +171,61 @@ describe Cequel::Record::Persistence do
           end
         end
 
-        it 'should initialize with block' do
+        it 'initializes with block' do
           expect(blog.name).to eq('Big Data')
         end
 
-        it 'should save instance' do
+        it 'saves instance' do
           expect(Blog.find(blog.subdomain).name).to eq('Big Data')
         end
 
-        it 'should fail fast if keys are missing' do
-          expect {
+        it 'fails fast if keys are missing' do
+          expect do
             Blog.create do |blog|
               blog.name = 'Big Data'
             end
-          }.to raise_error(Cequel::Record::MissingKeyError)
+          end.to raise_error(Cequel::Record::MissingKeyError)
         end
       end
 
       describe 'with attributes' do
         let!(:blog) do
-          Blog.create(:subdomain => 'big-data', :name => 'Big Data')
+          Blog.create(subdomain: 'big-data', name: 'Big Data')
         end
 
-        it 'should initialize with block' do
+        it 'initializes with block' do
           expect(blog.name).to eq('Big Data')
         end
 
-        it 'should save instance' do
+        it 'saves instance' do
           expect(Blog.find(blog.subdomain).name).to eq('Big Data')
         end
 
-        it 'should fail fast if keys are missing' do
-          expect {
-            Blog.create(:name => 'Big Data')
-          }.to raise_error(Cequel::Record::MissingKeyError)
+        it 'fails fast if keys are missing' do
+          expect do
+            Blog.create(name: 'Big Data')
+          end.to raise_error(Cequel::Record::MissingKeyError)
         end
       end
     end
 
     describe '#update_attributes' do
       let! :blog do
-        Blog.create(:subdomain => 'big-data', :name => 'Big Data')
+        Blog.create(subdomain: 'big-data', name: 'Big Data')
       end
 
-      before { blog.update_attributes(:name => 'The Big Data Blog') }
+      before { blog.update_attributes(name: 'The Big Data Blog') }
 
-      it 'should update instance in memory' do
+      it 'updates instance in memory' do
         expect(blog.name).to eq('The Big Data Blog')
       end
 
-      it 'should save instance' do
+      it 'saves instance' do
         expect(Blog.find(blog.subdomain).name).to eq('The Big Data Blog')
       end
 
-      it 'should not allow updating key values' do
-        expect { blog.update_attributes(:subdomain => 'soup') }
+      it 'does not allow updating key values' do
+        expect { blog.update_attributes(subdomain: 'soup') }
           .to raise_error(ArgumentError)
       end
     end
@@ -233,33 +233,33 @@ describe Cequel::Record::Persistence do
     describe '#destroy' do
       before { blog.destroy }
 
-      it 'should delete entire row' do
+      it 'deletes entire row' do
         expect(subject).to be_nil
       end
 
-      it 'should mark record transient' do
+      it 'marks record transient' do
         expect(blog).to be_transient
       end
 
-      it 'should destroy with specified consistency' do
-        blog = Blog.create(:subdomain => 'big-data', :name => 'Big Data')
+      it 'destroys with specified consistency' do
+        blog = Blog.create(subdomain: 'big-data', name: 'Big Data')
         expect_query_with_consistency(anything, :one) do
           blog.destroy(consistency: :one)
         end
       end
 
-      it 'should not destroy records without specified timestamp' do
+      it 'does not destroy records without specified timestamp' do
         blog = Blog.create(subdomain: 'big-data', name: 'Big Data')
         blog.destroy(timestamp: 1.hour.ago)
-        expect(cequel[Blog.table_name].where(subdomain: 'big-data').first).to be
+        expect(cequel[Blog.table_name].where(subdomain: 'big-data').first).to be_truthy
       end
     end
   end
 
   context 'compound keys' do
     subject do
-      cequel[Post.table_name].
-        where(:blog_subdomain => 'cassandra', :permalink => 'cequel').first
+      cequel[Post.table_name]
+        .where(blog_subdomain: 'cassandra', permalink: 'cequel').first
     end
 
     let!(:post) do
@@ -273,30 +273,30 @@ describe Cequel::Record::Persistence do
 
     describe '#save' do
       context 'on create' do
-        it 'should save row to database' do
+        it 'saves row to database' do
           expect(subject[:title]).to eq('Cequel')
         end
 
-        it 'should mark row persisted' do
+        it 'marks row persisted' do
           expect(post).to be_persisted
         end
 
-        it 'should fail fast if parent keys are missing' do
-          expect {
+        it 'fails fast if parent keys are missing' do
+          expect do
             Post.new do |post|
               post.permalink = 'cequel'
               post.title = 'Cequel'
             end.tap(&:save)
-          }.to raise_error(Cequel::Record::MissingKeyError)
+          end.to raise_error(Cequel::Record::MissingKeyError)
         end
 
-        it 'should fail fast if row keys are missing' do
-          expect {
+        it 'fails fast if row keys are missing' do
+          expect do
             Post.new do |post|
               post.blog_subdomain = 'cassandra'
               post.title = 'Cequel'
             end.tap(&:save)
-          }.to raise_error(Cequel::Record::MissingKeyError)
+          end.to raise_error(Cequel::Record::MissingKeyError)
         end
       end
 
@@ -310,37 +310,37 @@ describe Cequel::Record::Persistence do
           post.save
         end
 
-        it 'should change existing column value' do
+        it 'changes existing column value' do
           expect(subject[:title]).to eq('Cequel 1.0')
         end
 
-        it 'should add new column value' do
+        it 'adds new column value' do
           expect(subject[:author_id]).to eq(author_id)
         end
 
-        it 'should remove old column values' do
+        it 'removes old column values' do
           expect(subject[:body]).to be_nil
         end
 
-        it 'should not allow changing parent key values' do
-          expect {
+        it 'does not allow changing parent key values' do
+          expect do
             post.blog_subdomain = 'soup'
             post.save
-          }.to raise_error(ArgumentError)
+          end.to raise_error(ArgumentError)
         end
 
-        it 'should not allow changing row key values' do
-          expect {
+        it 'does not allow changing row key values' do
+          expect do
             post.permalink = 'soup-recipes'
             post.save
-          }.to raise_error(ArgumentError)
+          end.to raise_error(ArgumentError)
         end
 
-        it 'should notify subscribers' do
-          expect {
+        it 'notifies subscribers' do
+          expect do
             post.title = 'Cequel 1.0'
             post.save
-          }.to notify_name('update.cequel')
+          end.to notify_name('update.cequel')
         end
 
       end
@@ -349,17 +349,17 @@ describe Cequel::Record::Persistence do
     describe '#destroy' do
       before { post.destroy }
 
-      it 'should delete entire row' do
+      it 'deletes entire row' do
         expect(subject).to be_nil
       end
 
-      it 'should mark record transient' do
+      it 'marks record transient' do
         expect(post).to be_transient
       end
     end
 
     describe '#destroy' do
-      it 'should notify subscribers' do
+      it 'notifies subscribers' do
         expect { post.destroy }.to notify_name('destroy.cequel')
       end
     end
@@ -367,7 +367,7 @@ describe Cequel::Record::Persistence do
 
   # Custom matcher for active support notification
   matcher :notify_name do |expected_name|
-    match { |blk|
+    match do |blk|
       notification_recieved = false
       ActiveSupport::Notifications.subscribe expected_name do |*args|
         notification_recieved = true
@@ -376,7 +376,7 @@ describe Cequel::Record::Persistence do
       blk.call
 
       notification_recieved
-    }
+    end
 
     supports_block_expectations
   end

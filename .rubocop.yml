@@ -1,22 +1,145 @@
 inherit_from: .rubocop_todo.yml
 
+plugins:
+  - rubocop-rake
+  - rubocop-rspec
+
 AllCops:
   NewCops: disable
+  TargetRubyVersion: 3.0
   Exclude:
     - "templates/**/*"
 
 Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
   Exclude:
-    - "lib/cequel/version.rb"
-    - "lib/cequel/errors.rb"
-    - "lib/cequel/record/errors.rb"
+    - "spec/**/*"
+    - "gemfiles/**/*"
 
 Style/HashSyntax:
   Exclude:
     - "lib/cequel/record/tasks.rb"
+    - "gemfiles/**/*"
 
 Style/IfUnlessModifier:
   Enabled: false
 
 Style/DoubleNegation:
+  Enabled: false
+
+Style/CaseEquality:
+  Enabled: false
+
+Style/OptionalBooleanParameter:
+  Enabled: false
+
+Style/FormatStringToken:
+  Enabled: false
+
+Naming/VariableNumber:
+  Exclude:
+    - "gemfiles/**/*"
+    - "Gemfile"
+
+Naming/PredicatePrefix:
+  Enabled: false
+
+Naming/MethodParameterName:
+  MinNameLength: 1
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*"
+    - "cequel.gemspec"
+    - "lib/cequel/metal/new_relic_instrumentation.rb"
+    - "lib/cequel/record/tasks.rb"
+
+Metrics/ModuleLength:
+  Max: 400
+
+Metrics/ClassLength:
+  Max: 500
+
+Metrics/MethodLength:
+  Max: 40
+
+Metrics/AbcSize:
+  Max: 40
+  Exclude:
+    - "spec/**/*"
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - "spec/**/*"
+
+Lint/SuppressedException:
+  Enabled: false
+
+# RSpec cops — disable opinionated style rules
+RSpec/NamedSubject:
+  Enabled: false
+
+RSpec/RepeatedExample:
+  Enabled: false
+
+RSpec/RepeatedDescription:
+  Enabled: false
+
+RSpec/RepeatedExampleGroupDescription:
+  Enabled: false
+
+RSpec/LeakyConstantDeclaration:
+  Enabled: false
+
+RSpec/DescribeClass:
+  Enabled: false
+
+RSpec/RemoveConst:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+RSpec/ContextWording:
+  Enabled: false
+
+RSpec/SpecFilePathFormat:
+  Enabled: false
+
+RSpec/NoExpectationExample:
+  Enabled: false
+
+RSpec/BeforeAfterAll:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/MessageSpies:
+  Enabled: false
+
+RSpec/AnyInstance:
+  Enabled: false
+
+RSpec/LetSetup:
+  Enabled: false
+
+RSpec/StubbedMock:
+  Enabled: false
+
+RSpec/InstanceVariable:
+  Enabled: false
+
+Rake/Desc:
   Enabled: false

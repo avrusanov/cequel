@@ -1,4 +1,3 @@
-# -*- encoding : utf-8 -*-
 require_relative 'spec_helper'
 
 describe Cequel::Record::MassAssignment do
@@ -8,18 +7,18 @@ describe Cequel::Record::MassAssignment do
       column :title, :text
     end
 
-    it 'should allow assignment of vanilla hash' do
-      expect(Post.new(:title => 'Cequel').title).to eq('Cequel')
+    it 'allows assignment of vanilla hash' do
+      expect(Post.new(title: 'Cequel').title).to eq('Cequel')
     end
 
-    it 'should allow assignment of permitted strong params' do
-      expect(Post.new(StrongParams.new(true, :title => 'Cequel')).title).
-        to eq('Cequel')
+    it 'allows assignment of permitted strong params' do
+      expect(Post.new(StrongParams.new(true, title: 'Cequel')).title)
+        .to eq('Cequel')
     end
 
-    it 'should raise exception when assigned non-permitted strong params' do
-      expect { Post.new(StrongParams.new(false, :title => 'Cequel')) }.
-        to raise_error(ActiveModel::ForbiddenAttributesError)
+    it 'raises exception when assigned non-permitted strong params' do
+      expect { Post.new(StrongParams.new(false, title: 'Cequel')) }
+        .to raise_error(ActiveModel::ForbiddenAttributesError)
     end
 
     class StrongParams < DelegateClass(Hash)
@@ -43,13 +42,13 @@ describe Cequel::Record::MassAssignment do
       attr_accessible :title
     end
 
-    let(:post) { Post.new(:title => 'Cequel', :page_views => 1000) }
+    let(:post) { Post.new(title: 'Cequel', page_views: 1000) }
 
-    it 'should allow assignment of accessible params' do
+    it 'allows assignment of accessible params' do
       expect(post.title).to eq('Cequel')
     end
 
-    it 'should not allow assignment of inaccessible params' do
+    it 'does not allow assignment of inaccessible params' do
       expect(post.page_views).to be_nil
     end
   end

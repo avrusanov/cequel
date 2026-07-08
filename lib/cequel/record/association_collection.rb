@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -54,10 +55,10 @@ module Cequel
       #   to be counted
       #
       def count
-        raise Cequel::Record::DangerousQueryError.new
+        raise Cequel::Record::DangerousQueryError
       end
-      alias_method :length, :count
-      alias_method :size, :count
+      alias length count
+      alias size count
 
       #
       # @return [Boolean] true if this collection's records are loaded in
@@ -69,7 +70,7 @@ module Cequel
 
       private
 
-      alias_method :record_set, :__getobj__
+      alias record_set __getobj__
 
       def target
         @target ||= record_set.entries

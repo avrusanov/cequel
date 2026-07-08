@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Metal
     #
@@ -24,8 +25,7 @@ module Cequel
         consistency = options.fetch(:consistency, data_set.query_consistency)
         write_to_statement(statement, options)
         data_set.write_with_options(statement,
-                                    consistency: consistency
-                                   )
+                                    consistency: consistency)
       end
 
       #
@@ -62,7 +62,8 @@ module Cequel
         statement.append("INSERT INTO #{table_name}")
         statement.append(
           " (#{column_names.join(', ')}) VALUES (#{statements.join(', ')}) ",
-          *bind_vars)
+          *bind_vars
+        )
         statement.append(generate_upsert_options(options))
       end
     end

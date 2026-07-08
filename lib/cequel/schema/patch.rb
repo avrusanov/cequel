@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Schema
     #
@@ -7,10 +8,6 @@ module Cequel
     #
     class Patch
       extend Forwardable
-
-      protected def initialize(changes)
-        @changes = changes
-      end
 
       attr_reader :changes
 
@@ -21,12 +18,6 @@ module Cequel
       end
 
       class AbstractChange
-        protected def initialize(table, *post_init_args)
-          @table = table
-
-          post_init(*post_init_args)
-        end
-
         attr_reader :table
 
         def to_cql
@@ -39,7 +30,7 @@ module Cequel
 
         def ==(other)
           other.class == self.class &&
-            other.table == self.table &&
+            other.table == table &&
             subclass_eql?(other)
         end
 
@@ -49,17 +40,20 @@ module Cequel
 
         protected
 
+        def initialize(table, *post_init_args)
+          @table = table
+
+          post_init(*post_init_args)
+        end
+
         def subclass_eql?(other)
           fail NotImplementedError
         end
       end
 
       class SetTableProperties < AbstractChange
-        protected def post_init()
-        end
-
         def to_cql
-          %Q|ALTER TABLE "#{table.name}" WITH #{properties.map(&:to_cql).join(' AND ')}|
+          %Q(ALTER TABLE "#{table.name}" WITH #{properties.map(&:to_cql).join(' AND ')})
         end
 
         def properties
@@ -68,23 +62,25 @@ module Cequel
 
         protected
 
+        def post_init; end
+
         def subclass_eql?(other)
           other.properties == propreties
         end
       end
 
       class DropIndex < AbstractChange
-        protected def post_init(column_with_obsolete_idx)
-          @index_name = column_with_obsolete_idx.index_name
-        end
-
         attr_reader :index_name
 
         def to_cql
-          %Q|DROP INDEX IF EXISTS "#{index_name}"|
+          %Q(DROP INDEX IF EXISTS "#{index_name}")
         end
 
         protected
+
+        def post_init(column_with_obsolete_idx)
+          @index_name = column_with_obsolete_idx.index_name
+        end
 
         def subclass_eql?(other)
           other.index_name == index_name
@@ -92,11 +88,6 @@ module Cequel
       end
 
       class AddIndex < AbstractChange
-        protected def post_init(column)
-          @column = column
-          @index_name = column.index_name
-        end
-
         attr_reader :column, :index_name
 
         def to_cql
@@ -105,6 +96,11 @@ module Cequel
 
         protected
 
+        def post_init(column)
+          @column = column
+          @index_name = column.index_name
+        end
+
         def subclass_eql?(other)
           other.column == column &&
             other.index_name == index_name
@@ -112,17 +108,17 @@ module Cequel
       end
 
       class AddColumn < AbstractChange
-        protected def post_init(column)
-          @column = column
-        end
-
         attr_reader :column
 
         def to_cql
-          %Q|ALTER TABLE "#{table.name}" ADD #{column.to_cql}|
+          %Q(ALTER TABLE "#{table.name}" ADD #{column.to_cql})
         end
 
         protected
+
+        def post_init(column)
+          @column = column
+        end
 
         def subclass_eql?(other)
           other.column == column
@@ -130,22 +126,29 @@ module Cequel
       end
 
       class RenameColumn < AbstractChange
-        protected def post_init(old_column, new_column)
-          @old_name, @new_name = old_column.name, new_column.name
-        end
-
         attr_reader :old_name, :new_name
 
         def to_cql
-          %Q|ALTER TABLE "#{table.name}" RENAME "#{old_name}" TO "#{new_name}"|
+          %Q(ALTER TABLE "#{table.name}" RENAME "#{old_name}" TO "#{new_name}")
         end
 
         protected
+
+        def post_init(old_column, new_column)
+          @old_name = old_column.name
+          @new_name = new_column.name
+        end
 
         def subclass_eql?(other)
           other.old_name == old_name &&
             other.new_name == new_name
         end
+      end
+
+      protected
+
+      def initialize(changes)
+        @changes = changes
       end
     end
   end

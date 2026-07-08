@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -115,7 +116,7 @@ module Cequel
             BelongsToAssociation.new(self, name.to_sym, options)
 
           parent_association.association_key_columns.each_with_index do |column, i|
-            foreign_key_parts = self.parent_association.foreign_keys
+            foreign_key_parts = parent_association.foreign_keys
             foreign_key = foreign_key_parts.any? ? foreign_key_parts[i] : "#{name}_#{column.name}"
             key foreign_key.to_sym, column.type, key_options
           end
@@ -193,8 +194,9 @@ module Cequel
         if instance_variable_defined?(ivar_name)
           return instance_variable_get(ivar_name)
         end
+
         parent_key_values = key_values
-          .first(parent_association.association_key_columns.length)
+                            .first(parent_association.association_key_columns.length)
         if parent_key_values.none? { |value| value.nil? }
           clazz = parent_association.association_class
           parent = parent_key_values.reduce(clazz) do |record_set, key_value|
@@ -214,15 +216,15 @@ module Cequel
         instance_variable_set "@#{parent_association.name}", parent
         key_column_names = self.class.key_column_names
         parent.key_attributes
-          .zip(key_column_names) do |(parent_column_name, value), column_name|
-            if value.nil?
-              fail ArgumentError,
-                   "Can't set parent association " \
-                   "#{parent_association.name.inspect} " \
-                   "without value in key #{parent_column_name.inspect}"
-            end
-            write_attribute(column_name, value)
-          end
+              .zip(key_column_names) do |(parent_column_name, value), column_name|
+                if value.nil?
+                  fail ArgumentError,
+                       "Can't set parent association " \
+                       "#{parent_association.name.inspect} " \
+                       "without value in key #{parent_column_name.inspect}"
+                end
+                write_attribute(column_name, value)
+              end
       end
 
       def read_child_association(association_name, reload = false)
@@ -239,7 +241,8 @@ module Cequel
           end
 
         instance_variable_set(
-          ivar, AssociationCollection.new(association_record_set))
+          ivar, AssociationCollection.new(association_record_set)
+        )
       end
     end
   end

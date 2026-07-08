@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Metal
     #
@@ -10,6 +11,7 @@ module Cequel
     class Statement
       # @return [Array] bind variables for CQL string
       attr_reader :bind_vars
+
       # @return [Array] cassandra type hints for bind variables
 
       def initialize(cql_or_prepared='', bind_vars=[])
@@ -20,7 +22,9 @@ module Cequel
                            [cql_or_prepared.to_s, nil]
                          end
 
-        @cql, @prepared, @bind_vars = String.new(cql), prepared, bind_vars
+        @cql = String.new(cql)
+        @prepared = prepared
+        @bind_vars = bind_vars
       end
 
       #
@@ -29,11 +33,11 @@ module Cequel
       def to_s
         @cql
       end
-      alias_method :cql, :to_s
+      alias cql to_s
 
       # @return [Cassandra::Statements::Prepared] prepared version of this statement
       def prepare(keyspace)
-        @prepared ||= keyspace.client.prepare(cql)
+        @prepare ||= keyspace.client.prepare(cql)
       end
 
       #

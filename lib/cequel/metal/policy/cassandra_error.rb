@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Metal
     module Policy
@@ -16,8 +17,7 @@ module Cequel
           
           # On instantiation, the configuraiton hash passed to Cequel is 
           # available here
-          def initialize(options = {})
-          end
+          def initialize(options = {}); end
                     
           def execute_stmt(keyspace)
             raise NotImplementedError, "#execute_stmt must be implemented in #{self.class.name}"
@@ -31,7 +31,8 @@ module Cequel
           attr_reader :retry_delay
           # @return Boolean if this policy clears connections before retry
           attr_reader :clear_before_retry
-          def initialize(options = {})
+
+          def initialize(options = {}) # rubocop:disable Lint/MissingSuper
             @max_retries = options.fetch(:max_retries, 3)
             @retry_delay = options.fetch(:retry_delay, 0.5)
             @clear_before_retry = !!options.fetch(:clear_before_retry, true)
@@ -46,9 +47,10 @@ module Cequel
             begin
               yield
             rescue Cassandra::Errors::NoHostsAvailable,
-                  Cassandra::Errors::ExecutionError,
-                  Cassandra::Errors::TimeoutError => error
-              raise error if retries_remaining == 0
+                   Cassandra::Errors::ExecutionError,
+                   Cassandra::Errors::TimeoutError => e
+              raise e if retries_remaining.zero?
+
               sleep(retry_delay)
               keyspace.clear_active_connections! if clear_before_retry
               retries_remaining -= 1

@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 require 'cequel/schema/column'
 require 'cequel/schema/table_desc_dsl'
 require 'cequel/schema/keyspace'

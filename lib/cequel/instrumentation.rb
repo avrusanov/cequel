@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Cequel
   #
   # Generic module which enables injection of ActiveSupport notification
@@ -38,7 +40,7 @@ module Cequel
         define_method(:"__data_for_#{method_name}_instrumentation", &data_proc)
 
         mod = Module.new
-        mod.module_eval <<-METH
+        mod.module_eval <<-METH, __FILE__, __LINE__ + 1
           def #{method_name}(*args)
             instrument("#{topic}",
                        __data_for_#{method_name}_instrumentation(self)) do
@@ -51,16 +53,14 @@ module Cequel
       end
     end
 
+    def self.included(a_module)
+      a_module.extend ModuleMethods
+    end
+
     protected
 
     def instrument(name, data, &blk)
       ActiveSupport::Notifications.instrument(name, data, &blk)
-    end
-
-    # Module Methods
-
-    def self.included(a_module)
-      a_module.extend ModuleMethods
     end
   end
 end

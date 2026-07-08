@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -39,7 +40,8 @@ module Cequel
       included do
         class_attribute :default_attributes, instance_writer: false
         class_attribute :empty_attributes, instance_writer: false
-        self.default_attributes, self.empty_attributes = {}, {}
+        self.default_attributes = {}
+        self.empty_attributes = {}
 
         class <<self; alias_method :new_empty, :new; end
         extend ConstructorMethods
@@ -65,8 +67,6 @@ module Cequel
       #
       module ClassMethods
         protected
-
-        # rubocop:disable LineLength
 
         # @!visibility public
 
@@ -102,6 +102,7 @@ module Cequel
             unless Type[type].is_a?(Cequel::Type::Uuid)
               fail ArgumentError, ":auto option only valid for UUID columns"
             end
+
             default = -> { Cequel.uuid } if options[:auto]
           else
             default = options[:default]
@@ -109,9 +110,6 @@ module Cequel
           set_attribute_default(name, default)
         end
 
-        # rubocop:enable LineLength
-
-        #
         # Define a data column
         #
         # @param name [Symbol] the name of the column
@@ -281,7 +279,8 @@ module Cequel
 
       # @private
       def initialize(attributes = {}, record_collection = nil)
-        @cequel_attributes, @record_collection = attributes, record_collection
+        @cequel_attributes = attributes
+        @record_collection = record_collection
         @collection_proxies = {}
       end
 
@@ -409,7 +408,7 @@ module Cequel
 
       def initialize_new_record(attributes = {})
         dynamic_defaults = default_attributes
-          .select { |name, value| value.is_a?(Proc) }
+                           .select { |name, value| value.is_a?(Proc) }
         new_attributes =
           Util.deep_copy(default_attributes.except(*dynamic_defaults.keys))
         dynamic_defaults.each { |name, p| new_attributes[name] = p.call }

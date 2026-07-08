@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 require 'benchmark'
 
 module Cequel
@@ -68,13 +69,13 @@ module Cequel
       end
 
       def limit_value_length(bind_vars)
-        bind_vars.map { |it| String === it ? limit_length(it) : it }
+        bind_vars.map { |it| it.is_a?(String) ? limit_length(it) : it }
       end
 
       def limit_length(str)
         return str if str.length < 100
 
-        str[0..25] + "..." + str[-25..-1]
+        "#{str[0..25]}...#{str[-25..]}"
       end
 
       def_delegator 'Cequel::Metal::Keyspace', :sanitize

@@ -88,8 +88,8 @@ Style/PerlBackrefs:
   Enabled: false
 
 # Offense count: 1
-# Configuration parameters: NamePrefix, NamePrefixBlacklist.
-Naming/PredicateName:
+# Configuration parameters: NamePrefix, ForbiddenPrefixes.
+Naming/PredicatePrefix:
   Enabled: false
 
 # Offense count: 8

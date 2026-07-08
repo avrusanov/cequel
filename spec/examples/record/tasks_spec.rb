@@ -1,11 +1,10 @@
-# -*- encoding : utf-8 -*-
-require File.expand_path('../spec_helper', __FILE__)
+require File.expand_path('spec_helper', __dir__)
 require 'rake'
 
 describe 'migrate' do
   before(:all) do
     Rake.application = Rake::Application.new
-    load File.expand_path('../../../../lib/cequel/record/tasks.rb', __FILE__)
+    load File.expand_path('../../../lib/cequel/record/tasks.rb', __dir__)
   end
 
   let(:tmp_root) { Dir.mktmpdir }
@@ -45,7 +44,11 @@ describe 'migrate' do
 
     after do
       remove_const(class_name)
-      cequel.schema.drop_table(table_name) rescue nil
+      begin
+        cequel.schema.drop_table(table_name)
+      rescue StandardError
+        nil
+      end
     end
 
     it 'synchronizes the schema' do
@@ -85,8 +88,16 @@ describe 'migrate' do
     after do
       remove_const(class_name_a)
       remove_const(class_name_b)
-      cequel.schema.drop_table(table_a) rescue nil
-      cequel.schema.drop_table(table_b) rescue nil
+      begin
+        cequel.schema.drop_table(table_a)
+      rescue StandardError
+        nil
+      end
+      begin
+        cequel.schema.drop_table(table_b)
+      rescue StandardError
+        nil
+      end
     end
 
     it 'synchronizes the schema for every class in the file' do
@@ -118,7 +129,11 @@ describe 'migrate' do
     after do
       remove_const(class_name)
       remove_const('Admin') if defined?(Admin) && Admin.constants.empty?
-      cequel.schema.drop_table(table_name) rescue nil
+      begin
+        cequel.schema.drop_table(table_name)
+      rescue StandardError
+        nil
+      end
     end
 
     it 'synchronizes the schema for the namespaced model' do
@@ -160,8 +175,16 @@ describe 'migrate' do
       remove_const(class_root)
       remove_const(class_sub)
       remove_const('Billing') if defined?(Billing) && Billing.constants.empty?
-      cequel.schema.drop_table(table_root) rescue nil
-      cequel.schema.drop_table(table_sub) rescue nil
+      begin
+        cequel.schema.drop_table(table_root)
+      rescue StandardError
+        nil
+      end
+      begin
+        cequel.schema.drop_table(table_sub)
+      rescue StandardError
+        nil
+      end
     end
 
     it 'synchronizes schemas for all models' do
@@ -227,7 +250,11 @@ describe 'migrate' do
     after do
       remove_const(class_name_a)
       remove_const(class_name_b)
-      cequel.schema.drop_table(shared_table.to_sym) rescue nil
+      begin
+        cequel.schema.drop_table(shared_table.to_sym)
+      rescue StandardError
+        nil
+      end
     end
 
     it 'prints "Synchronized schema" exactly once' do

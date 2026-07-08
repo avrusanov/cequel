@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Schema
     #
@@ -71,28 +72,28 @@ module Cequel
       #   (see Cequel::Schema::TableUpdater#drop_column)
       #
       def_delegator :@updater, :drop_column
-      alias_method :remove_column, :drop_column
+      alias remove_column drop_column
 
       #
       # @!method change_properties(options)
       #   (see Cequel::Schema::TableUpdater#change_properties)
       #
       def_delegator :@updater, :change_properties
-      alias_method :change_options, :change_properties
+      alias change_options change_properties
 
       #
       # @!method create_index(column_name, index_name = nil)
       #   (see Cequel::Schema::TableUpdater#create_index
       #
       def_delegator :@updater, :create_index
-      alias_method :add_index, :create_index
+      alias add_index create_index
 
       #
       # @!method drop_index(index_name)
       #   (see Cequel::Schema::TableUpdater#drop_index)
       #
       def_delegator :@updater, :drop_index
-      alias_method :remove_index, :drop_index
+      alias remove_index drop_index
     end
   end
 end

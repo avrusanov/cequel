@@ -1,5 +1,4 @@
-# -*- encoding : utf-8 -*-
-require File.expand_path('../spec_helper', __FILE__)
+require File.expand_path('spec_helper', __dir__)
 
 describe Cequel::Record::Dirty do
   model :Post do
@@ -10,7 +9,7 @@ describe Cequel::Record::Dirty do
   end
 
   context 'loaded model' do
-    let(:created_at_float) { 1455754622.8502421 }
+    let(:created_at_float) { 1_455_754_622.8502421 }
     let(:post) do
       Post.create!(
         permalink: 'cequel',
@@ -20,48 +19,48 @@ describe Cequel::Record::Dirty do
       )
     end
 
-    it 'should not have changed attributes by default' do
+    it 'does not have changed attributes by default' do
       expect(post.changed_attributes).to be_empty
     end
 
-    it 'should have changed attributes if attributes change' do
+    it 'has changed attributes if attributes change' do
       post.title = 'Cequel ORM'
-      expect(post.changed_attributes).
-        to eq({:title => 'Cequel'}.with_indifferent_access)
+      expect(post.changed_attributes)
+        .to eq({title: 'Cequel'}.with_indifferent_access)
     end
 
-    it 'should not have changed attributes if attribute set to the same thing' do
+    it 'does not have changed attributes if attribute set to the same thing' do
       post.title = 'Cequel'
       expect(post.changed_attributes).to be_empty
     end
 
-    it 'should support *_changed? method' do
+    it 'supports *_changed? method' do
       post.title = 'Cequel ORM'
-      expect(post.title_changed?).to eq(true)
+      expect(post.title_changed?).to be(true)
     end
 
-    it 'should not have changed attributes after save' do
+    it 'does not have changed attributes after save' do
       post.title = 'Cequel ORM'
       post.save
       expect(post.changed_attributes).to be_empty
     end
 
-    it 'should have previous changes after save' do
+    it 'has previous changes after save' do
       post.title = 'Cequel ORM'
       post.save
-      expect(post.previous_changes).
-        to eq({ :title => ['Cequel', 'Cequel ORM'] }.with_indifferent_access)
+      expect(post.previous_changes)
+        .to eq({ title: ['Cequel', 'Cequel ORM'] }.with_indifferent_access)
     end
 
-    it 'should detect changes to collections' do
+    it 'detects changes to collections' do
       post.categories << 'Gems'
       expect(post.changes).to eq(
-        {categories: [Set['Libraries'], Set['Libraries', 'Gems']]}.
-        with_indifferent_access
+        {categories: [Set['Libraries'], Set['Libraries', 'Gems']]}
+        .with_indifferent_access
       )
     end
 
-    it 'should check dirty state against correctly cast timestamp values' do
+    it 'checks dirty state against correctly cast timestamp values' do
       post.created_at = created_at_float
       expect(post.changed_attributes).to be_empty
     end

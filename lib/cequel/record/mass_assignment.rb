@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 begin
   require 'active_model/forbidden_attributes_protection'
 rescue LoadError
@@ -7,8 +8,6 @@ end
 
 module Cequel
   module Record
-    # rubocop:disable LineLength
-
     #
     # Cequel supports mass-assignment protection in both the Rails 3 and Rails
     # 4 paradigms. Rails 3 applications may define `attr_protected` and
@@ -23,7 +22,6 @@ module Cequel
     # @since 1.0.0
     #
     module MassAssignment
-      # rubocop:enable LineLength
       extend ActiveSupport::Concern
 
       included do

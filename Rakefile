@@ -1,22 +1,24 @@
+# frozen_string_literal: true
+
 require 'yaml'
 require 'bundler/setup'
 require 'rspec/core/rake_task'
 require 'rubocop/rake_task'
 require 'wwtd/tasks'
-require File.expand_path('../lib/cequel/version', __FILE__)
+require File.expand_path('lib/cequel/version', __dir__)
 
-RUBY_VERSIONS = YAML.load_file(File.expand_path('../.travis.yml', __FILE__))['rvm']
+RUBY_VERSIONS = YAML.load_file(File.expand_path('.travis.yml', __dir__))['rvm']
 
 task default: :test
 
-task :release => [
-  :verify_changelog,
-  :"test:all",
-  :build,
-  :tag,
-  :update_stable,
-  :push,
-  :cleanup
+task release: %i[
+  verify_changelog
+  test:all
+  build
+  tag
+  update_stable
+  push
+  cleanup
 ]
 
 desc 'Build gem'
@@ -97,7 +99,7 @@ end
 
 desc 'Update changelog'
 task :changelog do
-  require './lib/cequel/version.rb'
+  require './lib/cequel/version'
 
   last_tag = `git tag`.each_line.map(&:strip).last
   existing_changelog = File.read('./CHANGELOG.md')
@@ -111,7 +113,7 @@ task :changelog do
 end
 
 task :verify_changelog do
-  require './lib/cequel/version.rb'
+  require './lib/cequel/version'
 
   if File.read('./CHANGELOG.md').each_line.first.strip != "## #{Cequel::VERSION}"
     abort "Changelog is not up-to-date."

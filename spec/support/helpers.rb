@@ -1,12 +1,12 @@
-# -*- encoding : utf-8 -*-
 module Cequel
   module SpecSupport
     module Macros
       def model(class_name, options = {}, &block)
         return if RSpec.configuration.filter_manager.exclusions
-          .include_example?(self)
-        setup_models = !self.metadata.key?(:models)
-        self.metadata[:models] ||= {}
+                       .include_example?(self)
+
+        setup_models = !metadata.key?(:models)
+        metadata[:models] ||= {}
 
         metadata[:models][class_name] = [options, block]
 
@@ -16,7 +16,7 @@ module Cequel
             metadata[:models].each do |name, (options, block)|
               clazz = Class.new do
                 include Cequel::Record
-                self.table_name = name.to_s.tableize + "_" + SecureRandom.hex(4)
+                self.table_name = "#{name.to_s.tableize}_#{SecureRandom.hex(4)}"
                 class_eval(&block)
               end
               Object.module_eval { const_set(name, clazz) }
@@ -28,7 +28,7 @@ module Cequel
             end
           end
 
-          before :each do
+          before do
             metadata = self.class.metadata
             metadata[:models].each_key do |name|
               name.to_s.constantize.find_each(&:destroy)
@@ -50,13 +50,12 @@ module Cequel
     end
 
     module Helpers
-
       def self.cql_version
         Cequel.connect(host: host,
                        port: port,
                        keyspace: "system")
-          .execute("SELECT cql_version FROM system.local")
-          .first["cql_version"]
+              .execute("SELECT cql_version FROM system.local")
+              .first["cql_version"]
       end
 
       def self.cequel
@@ -65,11 +64,11 @@ module Cequel
           port: port,
           keyspace: keyspace_name
         ).tap do |cequel|
-          if ENV['CEQUEL_LOG_QUERIES']
-            cequel.logger = Logger.new(STDOUT)
-          else
-            cequel.logger = Logger.new(File.open('/dev/null', 'a'))
-          end
+          cequel.logger = if ENV['CEQUEL_LOG_QUERIES']
+                            Logger.new($stdout)
+                          else
+                            Logger.new(File.open('/dev/null', 'a'))
+                          end
         end
       end
 
@@ -100,8 +99,8 @@ module Cequel
         require 'cassandra-cql'
         @legacy_connection ||= CassandraCQL::Database.new(
           legacy_host,
-          :keyspace => keyspace_name,
-          :cql_version => '2.0.0'
+          keyspace: keyspace_name,
+          cql_version: '2.0.0'
         )
       end
 
@@ -110,8 +109,8 @@ module Cequel
       end
 
       def max_uuid(time = Time.now)
-        Cassandra::TimeUuid::Generator.new(0x3fff, 0xffffffffffff).
-          at(time, 999)
+        Cassandra::TimeUuid::Generator.new(0x3fff, 0xffffffffffff)
+                                      .at(time, 999)
       end
 
       def cequel
@@ -129,7 +128,7 @@ module Cequel
       end
 
       def disallow_queries!
-        expect(cequel.client).to_not receive(:execute)
+        expect(cequel.client).not_to receive(:execute)
       end
 
       def with_client_error(error)
@@ -144,15 +143,15 @@ module Cequel
       def expect_query_with_consistency(matcher, consistency)
         allow(cequel.client).to receive(:execute).and_call_original
         yield
-        expect(cequel.client).to have_received(:execute).
-          with(matcher, hash_including(:consistency => consistency))
+        expect(cequel.client).to have_received(:execute)
+          .with(matcher, hash_including(consistency: consistency))
       end
 
       def expect_query_with_options(matcher, options)
         allow(cequel.client).to receive(:execute).and_call_original
         yield
-        expect(cequel.client).to have_received(:execute).
-          with(matcher, hash_including(options))
+        expect(cequel.client).to have_received(:execute)
+          .with(matcher, hash_including(options))
       end
 
       def one_millisecond

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Cequel
   #
   # A collection of modules providing convenient functionality for running

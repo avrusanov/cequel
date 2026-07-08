@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -123,7 +124,8 @@ module Cequel
       #
       def initialize(target_class, attributes = {})
         attributes = self.class.default_attributes.merge!(attributes)
-        @target_class, @cequel_attributes = target_class, attributes
+        @target_class = target_class
+        @cequel_attributes = attributes
         super(target_class)
       end
 
@@ -160,6 +162,7 @@ module Cequel
       #
       def select(*columns)
         return super if block_given?
+
         scoped { |attributes| attributes[:select_columns].concat(columns) }
       end
 
@@ -279,7 +282,7 @@ module Cequel
           attributes[:scoped_key_values] << primary_key_value
         end
       end
-      alias_method :/, :[]
+      alias / []
 
       #
       # Restrict the records in this record set to those containing any of a
@@ -346,6 +349,7 @@ module Cequel
       #
       def find(*keys)
         return super if block_given?
+
         keys = [keys] if almost_fully_specified? && keys.many?
         records = traverse(*keys).assert_fully_specified!.load!
         force_array = keys.any? { |value| value.is_a?(Array) }
@@ -536,8 +540,9 @@ module Cequel
       def first!
         first or fail(RecordNotFound,
                       "Couldn't find record with keys: #{
-                      scoped_key_attributes.map { |k, v|
-                        "#{k}: #{v}" }.join(', ')}")
+                      scoped_key_attributes.map do |k, v|
+                        "#{k}: #{v}"
+                      end.join(', ')}")
       end
 
       #
@@ -560,10 +565,10 @@ module Cequel
       # @raise [DangerousQueryError] to prevent loading the entire record set
       #   to be counted
       def count
-        raise Cequel::Record::DangerousQueryError.new
+        raise Cequel::Record::DangerousQueryError
       end
-      alias_method :length, :count
-      alias_method :size, :count
+      alias length count
+      alias size count
 
       #
       # Enumerate over the records in this record set
@@ -591,6 +596,7 @@ module Cequel
       #
       def find_each(options = {})
         return enum_for(:find_each, options) unless block_given?
+
         find_each_row(options) { |row| yield target_class.hydrate(row) }
       end
 
@@ -607,6 +613,7 @@ module Cequel
       #
       def find_in_batches(options = {})
         return enum_for(:find_in_batches, options) unless block_given?
+
         find_rows_in_batches(options) do |rows|
           yield rows.map { |row| target_class.hydrate(row) }
         end
@@ -627,6 +634,7 @@ module Cequel
       #
       def find_each_row(options = {}, &block)
         return enum_for(:find_each_row, options) unless block
+
         find_rows_in_batches(options) { |rows| rows.each(&block) }
       end
 
@@ -644,6 +652,7 @@ module Cequel
       #
       def find_rows_in_batches(options = {}, &block)
         return find_rows_in_single_batch(options, &block) if row_limit
+
         options.assert_valid_keys(:batch_size)
         batch_size = options.fetch(:batch_size, 1000)
         batch_record_set = base_record_set = limit(batch_size)
@@ -739,7 +748,6 @@ module Cequel
         column.clustering_column? &&
           (reversed? ^ (column.clustering_order == :desc))
       end
-
 
       hattr_reader :cequel_attributes, :select_columns, :scoped_key_values,
                    :row_limit, :lower_bound, :upper_bound,
@@ -837,6 +845,7 @@ module Cequel
         if column.nil?
           fail ArgumentError, "No column #{column_name} configured for #{target_class.name}"
         end
+
         validate_secondary_column_filter(column)
         scoped(scoped_secondary_columns:
                scoped_secondary_columns.merge(column_name => column.cast(value)))
@@ -925,8 +934,8 @@ module Cequel
         end
         if select_columns.empty?
           non_collection_columns = target_class.columns
-            .reject { |column| column.collection_column? }
-            .map { |column| column.name }
+                                               .reject { |column| column.collection_column? }
+                                               .map { |column| column.name }
           select(*non_collection_columns)
         else
           self
@@ -939,7 +948,7 @@ module Cequel
       def_delegator :range_key_column, :cast, :cast_range_key
       private :connection, :cast_range_key
 
-      def method_missing(method, *args, &block)
+      def method_missing(method, *args, &block) # rubocop:disable Style/MissingRespondToMissing
         target_class.with_scope(self) { super }
       end
 
@@ -968,6 +977,7 @@ module Cequel
 
       def key_attributes_for_each_row
         return enum_for(:key_attributes_for_each_row) unless block_given?
+
         select(*key_column_names).find_each do |record|
           yield record.key_attributes
         end

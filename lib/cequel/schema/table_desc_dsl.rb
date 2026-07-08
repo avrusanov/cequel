@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Schema
     #
@@ -22,21 +23,8 @@ module Cequel
     #     column :body, :text
     #   end
 
-    #
     class TableDescDsl < BasicObject
       extend ::Cequel::Util::Forwardable
-
-      # Initialize a new instance
-      #
-      # table_name - The name of the table being described.
-      protected def initialize(table_name)
-        @table_name = table_name
-        @columns = []
-        @properties = []
-        @is_compact_storage = false
-        @is_view = false
-        @has_part_key = false
-      end
 
       # Returns a Table object built by evaluating the provided block.
       #
@@ -55,9 +43,8 @@ module Cequel
       #   See `Cequel::Type`.
       #
       def partition_key(name, type)
-        columns <<  PartitionKey.new(name, type(type))
+        columns << PartitionKey.new(name, type(type))
       end
-
 
       # Describe (one of) the key(s) of the table.
       #
@@ -167,12 +154,23 @@ module Cequel
 
       protected
 
+      # Initialize a new instance
+      #
+      # table_name - The name of the table being described.
+      def initialize(table_name)
+        @table_name = table_name
+        @columns = []
+        @properties = []
+        @is_compact_storage = false
+        @is_view = false
+        @has_part_key = false
+      end
+
       attr_reader :table_name, :columns, :properties, :is_compact_storage,
                   :is_view
 
-
       def has_partition_key?
-        columns.any?{|c| c.partition_key? }
+        columns.any? { |c| c.partition_key? }
       end
 
       def type(type)

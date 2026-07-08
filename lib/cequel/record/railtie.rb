@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 require 'i18n/core_ext/hash'
 require 'yaml'
 require 'erb'
@@ -27,7 +28,8 @@ module Cequel
             require 'new_relic/agent/datastores'
           rescue LoadError => e
             Rails.logger.debug(
-              "New Relic not installed; skipping New Relic integration")
+              "New Relic not installed; skipping New Relic integration"
+            )
           else
             require 'cequel/metal/new_relic_instrumentation'
           end
@@ -52,8 +54,8 @@ module Cequel
 
         if File.exist?(config_path)
           config_yaml = ERB.new(File.read(config_path)).result
-          @configuration = YAML.load(config_yaml)[Rails.env]
-            .deep_symbolize_keys
+          @configuration = YAML.safe_load(config_yaml)[Rails.env]
+                               .deep_symbolize_keys
         else
           @configuration = {host: '127.0.0.1:9042'}
         end

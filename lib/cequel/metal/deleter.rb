@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Metal
     #
@@ -68,8 +69,8 @@ module Cequel
           fail ArgumentError, "No targets given for deletion!"
         else
           statement.append("DELETE ")
-            .append(statements.join(','), *bind_vars)
-            .append(" FROM #{table_name}")
+                   .append(statements.join(','), *bind_vars)
+                   .append(" FROM #{table_name}")
         end
         statement.append(generate_upsert_options(options))
       end

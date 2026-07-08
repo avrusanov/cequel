@@ -1,12 +1,12 @@
-# -*- encoding : utf-8 -*-
-require File.expand_path('../spec_helper', __FILE__)
+require File.expand_path('spec_helper', __dir__)
 
 describe Cequel::Record::Schema do
   context 'CQL3 table' do
-    after { cequel.schema.drop_table(table_name) }
     subject { cequel.schema.read_table(table_name) }
 
-    let(:table_name) { 'posts_' + SecureRandom.hex(4) }
+    after { cequel.schema.drop_table(table_name) }
+
+    let(:table_name) { "posts_#{SecureRandom.hex(4)}" }
 
     let(:model) do
       model_table_name = table_name
@@ -26,11 +26,11 @@ describe Cequel::Record::Schema do
     context 'new model with simple primary key' do
       before { model.synchronize_schema }
 
-      its(:partition_key_columns) { should == [Cequel::Schema::Column.new(:permalink, :text)] }
-      its(:data_columns) { should include(Cequel::Schema::Column.new(:title, :text)) }
-      its(:data_columns) { should include(Cequel::Schema::List.new(:categories, :text)) }
-      its(:data_columns) { should include(Cequel::Schema::Set.new(:tags, :text)) }
-      its(:data_columns) { should include(Cequel::Schema::Map.new(:trackbacks, :timestamp, :text)) }
+      its(:partition_key_columns) { is_expected.to eq([Cequel::Schema::Column.new(:permalink, :text)]) }
+      its(:data_columns) { is_expected.to include(Cequel::Schema::Column.new(:title, :text)) }
+      its(:data_columns) { is_expected.to include(Cequel::Schema::List.new(:categories, :text)) }
+      its(:data_columns) { is_expected.to include(Cequel::Schema::Set.new(:tags, :text)) }
+      its(:data_columns) { is_expected.to include(Cequel::Schema::Map.new(:trackbacks, :timestamp, :text)) }
       specify { expect(subject.property(:comment)).to eq('Blog Posts') }
     end
 
@@ -45,12 +45,14 @@ describe Cequel::Record::Schema do
         model.synchronize_schema
       end
 
-      its(:data_columns) { should include(Cequel::Schema::Map.new(:trackbacks, :timestamp, :text)) }
+      its(:data_columns) { is_expected.to include(Cequel::Schema::Map.new(:trackbacks, :timestamp, :text)) }
     end
   end
 
   context 'CQL3 table with reversed clustering column' do
-    let(:table_name) { 'posts_' + SecureRandom.hex(4) }
+    subject { cequel.schema.read_table(table_name) }
+
+    let(:table_name) { "posts_#{SecureRandom.hex(4)}" }
 
     let(:model) do
       model_table_name = table_name
@@ -66,15 +68,14 @@ describe Cequel::Record::Schema do
 
     before { model.synchronize_schema }
     after { cequel.schema.drop_table(table_name) }
-    subject { cequel.schema.read_table(table_name) }
 
-    it 'should order clustering column descending' do
+    it 'orders clustering column descending' do
       expect(subject.clustering_columns.first.clustering_order).to eq(:desc)
     end
   end
 
   context 'CQL3 table with non-dictionary-ordered partition columns' do
-    let(:table_name) { 'accesses_' + SecureRandom.hex(4) }
+    let(:table_name) { "accesses_#{SecureRandom.hex(4)}" }
 
     let(:model) do
       model_table_name = table_name
@@ -108,15 +109,17 @@ describe Cequel::Record::Schema do
     before { model.synchronize_schema }
     after { cequel.schema.drop_table(table_name) }
 
-    it 'should be able to synchronize schema again' do
-      expect {
+    it 'is able to synchronize schema again' do
+      expect do
         model_modified.synchronize_schema
-      }.not_to raise_error
+      end.not_to raise_error
     end
   end
 
   context 'wide-row legacy table' do
-    let(:table_name) { 'legacy_posts_' + SecureRandom.hex(4) }
+    subject { cequel.schema.read_table(table_name) }
+
+    let(:table_name) { "legacy_posts_#{SecureRandom.hex(4)}" }
 
     let(:legacy_model) do
       model_table_name = table_name
@@ -131,19 +134,19 @@ describe Cequel::Record::Schema do
         compact_storage
       end
     end
+
     after { cequel.schema.drop_table(table_name) }
-    subject { cequel.schema.read_table(table_name) }
 
     context 'new model' do
       before { legacy_model.synchronize_schema }
 
-      its(:partition_key_columns) { should == [Cequel::Schema::Column.new(:blog_subdomain, :text)] }
-      its(:clustering_columns) { should == [Cequel::Schema::Column.new(:id, :uuid)] }
+      its(:partition_key_columns) { is_expected.to eq([Cequel::Schema::Column.new(:blog_subdomain, :text)]) }
+      its(:clustering_columns) { is_expected.to eq([Cequel::Schema::Column.new(:id, :uuid)]) }
       it { is_expected.to be_compact_storage }
-      its(:data_columns) { should == [Cequel::Schema::Column.new(:data, :text)] }
+      its(:data_columns) { is_expected.to eq([Cequel::Schema::Column.new(:data, :text)]) }
     end
 
-    context 'existing model', thrift: true do
+    context 'existing model', :thrift do
       before do
         legacy_connection.execute(<<-CQL2)
           CREATE COLUMNFAMILY #{table_name} (blog_subdomain text PRIMARY KEY)
@@ -157,8 +160,8 @@ describe Cequel::Record::Schema do
       it { is_expected.to be_compact_storage }
       its(:data_columns) { is_expected.to eq([Cequel::Schema::Column.new(:data, :text)]) }
 
-      it 'should be able to synchronize schema again' do
-        expect { legacy_model.synchronize_schema }.to_not raise_error
+      it 'is able to synchronize schema again' do
+        expect { legacy_model.synchronize_schema }.not_to raise_error
       end
     end
   end

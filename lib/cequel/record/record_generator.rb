@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -8,7 +9,7 @@ module Cequel
     #
     class RecordGenerator < Rails::Generators::NamedBase
       namespace 'cequel'
-      source_root File.expand_path('../../../../templates', __FILE__)
+      source_root File.expand_path('../../../templates', __dir__)
       argument :attributes, type: :array, default: [],
                             banner: 'field:type[:index] field:type[:index]'
 

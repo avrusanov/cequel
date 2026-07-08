@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -31,7 +32,8 @@ module Cequel
       def initialize(owner_class, name, options = {})
         options.assert_valid_keys(:class_name, :dependent)
 
-        @owner_class, @name = owner_class, name
+        @owner_class = owner_class
+        @name = name
         @association_class_name =
           options.fetch(:class_name, name.to_s.classify)
         case options[:dependent]

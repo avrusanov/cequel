@@ -1,8 +1,8 @@
-# -*- encoding : utf-8 -*-
-require File.expand_path('../../spec_helper', __FILE__)
+require File.expand_path('../spec_helper', __dir__)
 
 describe Cequel::Schema::TableUpdater do
   let(:table_name) { :"posts_#{SecureRandom.hex(4)}" }
+  let(:table) { cequel.schema.read_table(table_name) }
 
   before do
     cequel.schema.create_table(table_name) do
@@ -15,8 +15,6 @@ describe Cequel::Schema::TableUpdater do
 
   after { cequel.schema.drop_table(table_name) }
 
-  let(:table) { cequel.schema.read_table(table_name) }
-
   describe '#add_column' do
     before do
       cequel.schema.alter_table(table_name) do
@@ -24,7 +22,7 @@ describe Cequel::Schema::TableUpdater do
       end
     end
 
-    it 'should add the column with the given type' do
+    it 'adds the column with the given type' do
       expect(table.data_column(:published_at).type).to eq(Cequel::Type[:timestamp])
     end
   end
@@ -36,11 +34,11 @@ describe Cequel::Schema::TableUpdater do
       end
     end
 
-    it 'should add the list' do
+    it 'adds the list' do
       expect(table.data_column(:author_names)).to be_a(Cequel::Schema::List)
     end
 
-    it 'should set the given type' do
+    it 'sets the given type' do
       expect(table.data_column(:author_names).type).to eq(Cequel::Type[:text])
     end
   end
@@ -52,11 +50,11 @@ describe Cequel::Schema::TableUpdater do
       end
     end
 
-    it 'should add the list' do
+    it 'adds the list' do
       expect(table.data_column(:author_names)).to be_a(Cequel::Schema::Set)
     end
 
-    it 'should set the given type' do
+    it 'sets the given type' do
       expect(table.data_column(:author_names).type).to eq(Cequel::Type[:text])
     end
   end
@@ -68,18 +66,18 @@ describe Cequel::Schema::TableUpdater do
       end
     end
 
-    it 'should add the list' do
+    it 'adds the list' do
       expect(table.data_column(:trackbacks)).to be_a(Cequel::Schema::Map)
     end
 
-    it 'should set the key type' do
-      expect(table.data_column(:trackbacks).key_type).
-        to eq(Cequel::Type[:timestamp])
+    it 'sets the key type' do
+      expect(table.data_column(:trackbacks).key_type)
+        .to eq(Cequel::Type[:timestamp])
     end
 
-    it 'should set the value type' do
-      expect(table.data_column(:trackbacks).value_type).
-        to eq(Cequel::Type[:ascii])
+    it 'sets the value type' do
+      expect(table.data_column(:trackbacks).value_type)
+        .to eq(Cequel::Type[:ascii])
     end
   end
 
@@ -90,8 +88,8 @@ describe Cequel::Schema::TableUpdater do
       end
     end
 
-    it 'should change the name' do
-      expect(table.clustering_column(:slug)).to be
+    it 'changes the name' do
+      expect(table.clustering_column(:slug)).to be_truthy
       expect(table.clustering_column(:permalink)).to be_nil
     end
   end
@@ -99,11 +97,11 @@ describe Cequel::Schema::TableUpdater do
   describe '#change_properties' do
     before do
       cequel.schema.alter_table(table_name) do
-        change_properties :comment => 'Test Comment'
+        change_properties comment: 'Test Comment'
       end
     end
 
-    it 'should change properties' do
+    it 'changes properties' do
       expect(table.properties[:comment].value).to eq('Test Comment')
     end
   end
@@ -118,7 +116,7 @@ describe Cequel::Schema::TableUpdater do
         end
       end
 
-      it 'should drop the index' do
+      it 'drops the index' do
         expect(table.data_column(:title)).not_to be_indexed
       end
     end
@@ -131,7 +129,7 @@ describe Cequel::Schema::TableUpdater do
         end
       end
 
-      it 'should nop on non existent index' do
+      it 'nops on non existent index' do
         expect(table.data_column(:title)).not_to be_indexed
       end
     end
@@ -144,7 +142,7 @@ describe Cequel::Schema::TableUpdater do
       end
     end
 
-    it 'should add the index' do
+    it 'adds the index' do
       expect(table.data_column(:title)).to be_indexed
     end
   end
@@ -156,7 +154,7 @@ describe Cequel::Schema::TableUpdater do
       end
     end
 
-    it 'should remove the column' do
+    it 'removes the column' do
       expect(table.data_column(:body)).to be_nil
     end
   end

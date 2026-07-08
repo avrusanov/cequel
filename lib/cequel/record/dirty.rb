@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -47,7 +48,7 @@ module Cequel
       def save(options = {})
         super.tap do |success|
           if success
-            if self.respond_to?(:changes_applied)
+            if respond_to?(:changes_applied)
               changes_applied
             else
               @previously_changed = changes
@@ -62,6 +63,7 @@ module Cequel
       def write_attribute(name, value)
         column = self.class.reflect_on_column(name)
         fail UnknownAttributeError, "unknown attribute: #{name}" unless column
+
         value = column.cast(value) unless value.nil?
 
         if loaded? && value != read_attribute(name)

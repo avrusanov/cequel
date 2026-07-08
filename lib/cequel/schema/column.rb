@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Schema
     #
@@ -17,12 +18,10 @@ module Cequel
       # @param type [Type] the type of the column
       #
       def initialize(name, type)
-        @name, @type = name, type
+        @name = name
+        @type = type
       end
 
-      # rubocop:disable LineLength
-
-      #
       # @return [Boolean] true if this is a key column
       #
       # @see
@@ -55,9 +54,6 @@ module Cequel
         false
       end
 
-      # rubocop:enable LineLength
-
-      #
       # @return [Boolean] true if this is a data column
       #
       def data_column?
@@ -105,7 +101,7 @@ module Cequel
       # @api private
       #
       def to_cql
-        %Q|"#{@name}" #{@type}|
+        %Q("#{@name}" #{@type})
       end
 
       #
@@ -116,7 +112,7 @@ module Cequel
       def ==(other)
         to_cql == other.to_cql
       end
-      alias_method :eql?, :==
+      alias eql? ==
 
       #
       # @return [String] the column's name
@@ -273,7 +269,7 @@ module Cequel
     class Map < CollectionColumn
       # @return [Type] the type of keys in this map
       attr_reader :key_type
-      alias_method :value_type, :type
+      alias value_type type
 
       #
       # @param name [Symbol] name of this column

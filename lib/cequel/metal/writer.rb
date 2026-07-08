@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Metal
     #
@@ -19,8 +20,11 @@ module Cequel
       # @param data_set [DataSet] data set to write to
       #
       def initialize(data_set, &block)
-        @data_set, @options, @block = data_set, options, block
-        @statements, @bind_vars = [], []
+        @data_set = data_set
+        @options = options
+        @block = block
+        @statements = []
+        @bind_vars = []
         SimpleDelegator.new(self).instance_eval(&block) if block
       end
 
@@ -39,6 +43,7 @@ module Cequel
       def execute(options = {})
         options.assert_valid_keys(:timestamp, :ttl, :consistency)
         return if empty?
+
         statement = Statement.new
         consistency = options.fetch(:consistency, data_set.query_consistency)
         write_to_statement(statement, options)
@@ -50,6 +55,7 @@ module Cequel
       private
 
       attr_reader :data_set, :options, :statements, :bind_vars
+
       def_delegator :data_set, :table_name
       def_delegator :statements, :empty?
 

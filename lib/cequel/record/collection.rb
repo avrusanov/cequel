@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 require 'delegate'
 
 module Cequel
@@ -74,7 +75,8 @@ module Cequel
       included do
         define_method(
           :method_missing,
-          BasicObject.instance_method(:method_missing))
+          BasicObject.instance_method(:method_missing)
+        )
         private :method_missing
       end
 
@@ -84,7 +86,8 @@ module Cequel
       # @return [Collection] a new collection
       #
       def initialize(model, column)
-        @model, @column = model, column
+        @model = model
+        @column = column
       end
 
       #
@@ -130,6 +133,7 @@ module Cequel
       private
 
       attr_reader :model, :column
+
       def_delegator :column, :cast, :cast_collection
       def_delegator 'column.type', :cast, :cast_element
       private :cast_collection, :cast_element
@@ -138,7 +142,8 @@ module Cequel
         if loaded?
           model.__send__("#{column_name}_will_change!")
           block.call
-        else modifications << block
+        else
+          modifications << block
         end
         self
       end
@@ -165,26 +170,26 @@ module Cequel
 
       # These methods are not available on lists because they require reading
       # collection data before writing it.
-      NON_ATOMIC_MUTATORS = [
-        :collect!,
-        :delete_if,
-        :fill,
-        :flatten!,
-        :insert,
-        :keep_if,
-        :map!,
-        :pop,
-        :reject!,
-        :reverse!,
-        :rotate!,
-        :select!,
-        :shift,
-        :shuffle!,
-        :slice!,
-        :sort!,
-        :sort_by!,
-        :uniq!
-      ]
+      NON_ATOMIC_MUTATORS = %i[
+        collect!
+        delete_if
+        fill
+        flatten!
+        insert
+        keep_if
+        map!
+        pop
+        reject!
+        reverse!
+        rotate!
+        select!
+        shift
+        shuffle!
+        slice!
+        sort!
+        sort_by!
+        uniq!
+      ].freeze
       NON_ATOMIC_MUTATORS
         .each { |method| undef_method(method) if method_defined? method }
 
@@ -302,8 +307,8 @@ module Cequel
         to_update { updater.list_append(column_name, objects) }
         to_modify { super }
       end
-      alias_method :<<, :push
-      alias_method :append, :push
+      alias << push
+      alias append push
 
       #
       # Replace the entire contents of this list with a new collection
@@ -329,7 +334,7 @@ module Cequel
         to_update { updater.list_prepend(column_name, prepared) }
         to_modify { super }
       end
-      alias_method :prepend, :unshift
+      alias prepend unshift
 
       protected
 
@@ -371,17 +376,17 @@ module Cequel
 
       # These methods are not implemented because they cannot be expressed as a
       # single CQL3 write operation.
-      NON_ATOMIC_MUTATORS = [
-        :add?,
-        :collect!,
-        :delete?,
-        :delete_if,
-        :flatten!,
-        :keep_if,
-        :map!,
-        :reject!,
-        :select!
-      ]
+      NON_ATOMIC_MUTATORS = %i[
+        add?
+        collect!
+        delete?
+        delete_if
+        flatten!
+        keep_if
+        map!
+        reject!
+        select!
+      ].freeze
       NON_ATOMIC_MUTATORS
         .each { |method| undef_method(method) if method_defined? method }
 
@@ -396,7 +401,7 @@ module Cequel
         to_update { updater.set_add(column_name, object) }
         to_modify { super }
       end
-      alias_method :<<, :add
+      alias << add
 
       #
       # Remove everything from the set. Equivalent to deleting the collection
@@ -448,27 +453,27 @@ module Cequel
 
       # These methods involve mutation that cannot be expressed as a CQL
       # operation, so are not implemented.
-      NON_ATOMIC_MUTATORS = [
-        :default,
-        :default=,
-        :default_proc,
-        :default_proc=,
-        :delete_if,
-        :deep_merge!,
-        :except!,
-        :extract!,
-        :keep_if,
-        :reject!,
-        :reverse_merge!,
-        :reverse_update,
-        :select!,
-        :shift,
-        :slice!,
-        :stringify_keys!,
-        :symbolize_keys!,
-        :to_options!,
-        :transform_keys!
-      ]
+      NON_ATOMIC_MUTATORS = %i[
+        default
+        default=
+        default_proc
+        default_proc=
+        delete_if
+        deep_merge!
+        except!
+        extract!
+        keep_if
+        reject!
+        reverse_merge!
+        reverse_update
+        select!
+        shift
+        slice!
+        stringify_keys!
+        symbolize_keys!
+        to_options!
+        transform_keys!
+      ].freeze
       NON_ATOMIC_MUTATORS
         .each { |method| undef_method(method) if method_defined? method }
 
@@ -484,7 +489,7 @@ module Cequel
         to_update { updater.map_update(column_name, key => value) }
         to_modify { super }
       end
-      alias_method :store, :[]=
+      alias store []=
 
       #
       # Remove all elements from this map. Equivalent to deleting the column
@@ -520,7 +525,7 @@ module Cequel
         to_update { updater.map_update(column_name, hash) }
         to_modify { super }
       end
-      alias_method :update, :merge!
+      alias update merge!
 
       #
       # Replace the entire contents of this map with a new one
@@ -533,8 +538,6 @@ module Cequel
         to_update { updater.set(column_name => hash) }
         to_modify { super }
       end
-
-      private
 
       def_delegator 'column.key_type', :cast, :cast_key
       private :cast_key

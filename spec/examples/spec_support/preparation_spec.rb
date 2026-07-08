@@ -4,13 +4,28 @@ require "cequel/spec_support"
 
 describe Cequel::SpecSupport::Preparation do
   subject(:prep) { described_class.new([], quiet: true) }
+
   let(:keyspace) { cequel }
+
+  after do
+    
+    Cequel::Record.connection.clear_active_connections!
+    Cequel::Record.connection.schema.create!
+  rescue StandardError
+    nil
+    
+  end
+  # background
+
+  before do
+    Cequel::Record.forget_all_descendants!
+  end
 
   it "returns itself from #drop_keyspace" do
     expect(prep.drop_keyspace).to eq prep
   end
 
-  it "returns itself from #create_keyspace", :retry => 1, :retry_wait => 1 do
+  it "returns itself from #create_keyspace", retry: 1, retry_wait: 1 do
     expect(prep.create_keyspace).to eq prep
   end
 
@@ -21,18 +36,18 @@ describe Cequel::SpecSupport::Preparation do
   context "existing keyspace" do
     it "can be deleted" do
       prep.drop_keyspace
-      expect(keyspace.exists?).to eq false
+      expect(keyspace.exists?).to be false
     end
 
     it "doesn't cause failure upon creation request" do
-      expect{ prep.create_keyspace }.not_to raise_error
-      expect(keyspace.exists?).to eq true
+      expect { prep.create_keyspace }.not_to raise_error
+      expect(keyspace.exists?).to be true
     end
 
     it "allows tables to be synced" do
-      3.times do GC.start end # get rid of most of the crufty classes
+      3.times { GC.start } # get rid of most of the crufty classes
 
-      table_name = "model_in_nonstandard_place_" + SecureRandom.hex(4)
+      table_name = "model_in_nonstandard_place_#{SecureRandom.hex(4)}"
       rec_class = Class.new do
         include Cequel::Record
         self.table_name = table_name
@@ -45,20 +60,20 @@ describe Cequel::SpecSupport::Preparation do
   end
 
   context "keyspace doesn't exist" do
-    before(:each) do
+    before do
       Cequel::Record.connection.schema.drop!
     end
 
-    let!(:model) {
+    let!(:model) do
       Class.new do
         include Cequel::Record
-        self.table_name = "blog_" + SecureRandom.hex(4)
+        self.table_name = "blog_#{SecureRandom.hex(4)}"
         key :name, :text
       end
-    }
+    end
 
     it "doesn't cause failure upon drop requests" do
-      expect{ prep.drop_keyspace }.not_to raise_error
+      expect { prep.drop_keyspace }.not_to raise_error
     end
 
     it "allows keyspace can be created" do
@@ -68,22 +83,7 @@ describe Cequel::SpecSupport::Preparation do
     end
 
     it "causes #sync_schema to fail" do
-      expect{ prep.sync_schema }.to raise_error(Cequel::NoSuchKeyspaceError)
-    end
-  end
-
-  # background
-
-  before(:each) do
-    Cequel::Record.forget_all_descendants!
-  end
-
-  after(:each) do
-    begin
-      Cequel::Record.connection.clear_active_connections!
-      Cequel::Record.connection.schema.create!
-    rescue
-      nil
+      expect { prep.sync_schema }.to raise_error(Cequel::NoSuchKeyspaceError)
     end
   end
 
@@ -92,7 +92,7 @@ describe Cequel::SpecSupport::Preparation do
       keyspace.cluster.refresh_schema
       ks = keyspace.cluster.keyspace(keyspace.name)
 
-      ks && ks.has_table?(table_name)
+      ks&.has_table?(table_name)
     end
 
     failure_message do |keyspace|

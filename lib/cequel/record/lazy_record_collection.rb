@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -28,6 +29,7 @@ module Cequel
       #
       def initialize(record_set)
         fail ArgumentError if record_set.nil?
+
         @record_set = record_set
 
         exploded_key_attributes = [{}].tap do |all_key_attributes|

@@ -1,5 +1,4 @@
-# -*- encoding : utf-8 -*-
-require File.expand_path('../../spec_helper', __FILE__)
+require File.expand_path('../spec_helper', __dir__)
 
 describe Cequel::Schema::Keyspace do
   let(:connection) do
@@ -29,7 +28,7 @@ describe Cequel::Schema::Keyspace do
     end
 
     let(:schema_config) do
-      connection.send(:cluster).tap{|x| x.refresh_schema}.keyspace(keyspace_name)
+      connection.send(:cluster).tap { |x| x.refresh_schema }.keyspace(keyspace_name)
     end
 
     context 'with default options' do
@@ -38,7 +37,7 @@ describe Cequel::Schema::Keyspace do
       it 'uses default keyspace configuration' do
         keyspace.create!
         expect(schema_config.name).to eq keyspace_name
-        expect(schema_config.durable_writes?).to eq true
+        expect(schema_config.durable_writes?).to be true
       end
     end
 
@@ -48,7 +47,7 @@ describe Cequel::Schema::Keyspace do
       it 'uses specified options' do
         keyspace.create! replication: { class: "SimpleStrategy", replication_factor: 2 }
         expect(schema_config.name).to eq keyspace_name
-        expect(schema_config.durable_writes?).to eq true
+        expect(schema_config.durable_writes?).to be true
       end
     end
 
@@ -58,50 +57,50 @@ describe Cequel::Schema::Keyspace do
       it 'accepts class and replication_factor options' do
         keyspace.create! class: "SimpleStrategy", replication_factor: 2
         expect(schema_config.name).to eq keyspace_name
-        expect(schema_config.durable_writes?).to eq true
+        expect(schema_config.durable_writes?).to be true
       end
 
-      it "raises an error if a class other than SimpleStrategy is given"  do
-        expect {
+      it "raises an error if a class other than SimpleStrategy is given" do
+        expect do
           keyspace.create! class: "NetworkTopologyStrategy", replication_factor: 2
-        }.to raise_error(RuntimeError)
+        end.to raise_error(RuntimeError)
       end
     end
 
     context 'with custom replication options' do
-      let(:config) {
+      let(:config) do
         basic_config.merge(replication: { class: "SimpleStrategy", replication_factor: 3 })
-      }
+      end
 
       it 'uses default keyspace configuration' do
         keyspace.create!
         expect(schema_config.name).to eq keyspace_name
-        expect(schema_config.durable_writes?).to eq true
+        expect(schema_config.durable_writes?).to be true
       end
     end
 
     context 'with another custom replication options' do
-      let(:config) {
+      let(:config) do
         basic_config.merge(replication: { class: "NetworkTopologyStrategy", datacenter1: 3, datacenter2: 2 })
-      }
+      end
 
       it 'uses default keyspace configuration' do
         keyspace.create!
         expect(schema_config.name).to eq keyspace_name
-        expect(schema_config.durable_writes?).to eq true
+        expect(schema_config.durable_writes?).to be true
       end
     end
 
     context 'with custom durable_write option' do
-      let(:config) {
+      let(:config) do
         basic_config.merge(durable_writes: false)
-      }
+      end
 
       it 'uses default keyspace configuration' do
         keyspace.create!
         expect(schema_config.name).to eq keyspace_name
-        expect(schema_config.durable_writes?).to eq false
+        expect(schema_config.durable_writes?).to be false
       end
     end
-  end # describe 'creating keyspace'
+  end
 end

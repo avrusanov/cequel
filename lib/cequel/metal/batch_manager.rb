@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Metal
     #
@@ -62,7 +63,6 @@ module Cequel
       private
 
       attr_reader :keyspace
-
 
       def current_batch=(batch)
         ::Thread.current[batch_key] = batch

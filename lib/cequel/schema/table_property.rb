@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Schema
     #
@@ -48,10 +49,10 @@ module Cequel
       # same property).
       #
       def ==(other)
-        other.name == self.name &&
-          other.value == self.value
+        other.name == name &&
+          other.value == value
       end
-      alias_method :eql?, :==
+      alias eql? ==
 
       # Returns a hash code for this object
       def hash
@@ -96,8 +97,8 @@ module Cequel
 
       def value_cql
         map_pairs = @value.each_pair
-          .map { |key, value| "#{quote(key.to_s)} : #{quote(value)}" }
-          .join(', ')
+                          .map { |key, value| "#{quote(key.to_s)} : #{quote(value)}" }
+                          .join(', ')
         "{ #{map_pairs} }"
       end
     end

@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -20,7 +21,7 @@ module Cequel
 
       included do
         class_attribute :table_name, instance_writer: false
-        self.table_name = name.demodulize.tableize.to_sym unless name.nil? || self.table_name.present?
+        self.table_name = name.demodulize.tableize.to_sym unless name.nil? || table_name.present?
       end
 
       #
@@ -91,8 +92,7 @@ module Cequel
 
               Cequel::Schema::TableDiffer.new(existing_table_descriptor,
                                               table_schema)
-                .call
-
+                                         .call
             rescue NoSuchTableError
               Cequel::Schema::TableWriter.new(table_schema)
             end
@@ -162,8 +162,6 @@ module Cequel
           dsl.compact_storage
         end
       end
-
-      protected
 
       def_delegator 'self.class', :table_schema
       protected :table_schema

@@ -1,4 +1,5 @@
-# -*- encoding : utf-8 -*-
+# frozen_string_literal: true
+
 module Cequel
   module Record
     #
@@ -50,6 +51,7 @@ module Cequel
 
       attr_accessor :data_set
       attr_reader :record_set
+
       def_delegators :record_set, :row_limit, :select_columns,
                      :scoped_key_names, :scoped_key_values,
                      :scoped_secondary_columns, :lower_bound,
